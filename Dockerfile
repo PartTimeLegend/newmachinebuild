@@ -1,4 +1,4 @@
-FROM mcr.microsoft.com/windows/servercore
+FROM mcr.microsoft.com/windows/servercore:ltsc2016
 LABEL maintainer="hi@antonybailey.net"
 RUN ["powershell", "New-Item", "-Path \"C:\"", "-ItemType \"directory\"", "-Name \"temp\""]
 WORKDIR C:/temp
