@@ -1,4 +1,4 @@
-FROM mcr.microsoft.com/windows:1909
+FROM mcr.microsoft.com/windows:latest
 LABEL maintainer="hi@antonybailey.net"
 RUN ["powershell", "New-Item", "-Path \"C:\"", "-ItemType \"directory\"", "-Name \"temp\""]
 WORKDIR C:/temp
