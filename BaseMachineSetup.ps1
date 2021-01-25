@@ -26,9 +26,51 @@ try
 catch
 {
     # AD didn't work
-    $personname = Read-Host -Prompt 'What is your name?'
-    $personemail = Read-Host -Prompt 'What is your email address?'
+    $personname = Read-KeyOrTimeout 30, 'What is your name?', 'Unknown'
+    $personemail = Read-KeyOrTimeout 30, 'What is your email?', 'Unknown'
 }
+
+function Read-KeyOrTimeout {
+ 
+    Param(
+        [int]$seconds = 5,
+        [string]$prompt = 'Value',
+        [string]$default = 'Unknown'
+    )
+ 
+    $startTime = Get-Date
+    $timeOut = New-TimeSpan -Seconds $seconds
+ 
+    Write-Host $prompt
+ 
+    while (-not $host.ui.RawUI.KeyAvailable) {
+ 
+        $currentTime = Get-Date
+ 
+        if ($currentTime -gt $startTime + $timeOut) {
+ 
+            Break
+    
+        }
+    
+    }
+ 
+    if ($host.ui.RawUI.KeyAvailable) {
+ 
+        [string]$response = ($host.ui.RawUI.ReadKey("IncludeKeyDown,NoEcho")).character
+ 
+    }
+ 
+    else {
+    
+        $response = $default
+ 
+    }
+ 
+    return $response
+ 
+}
+ 
 
 function installWithChoco()
 {
