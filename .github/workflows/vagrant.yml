@@ -10,7 +10,7 @@ jobs:
   linux:
     runs-on: ubuntu-latest
     steps:
-      #- run: sudo apt update
+      - run: sudo apt update
       #- run: sudo apt upgrade
       #- run: sudo apt dist-upgrade
       - run: sudo apt install virtualbox
