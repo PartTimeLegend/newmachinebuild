@@ -10,20 +10,20 @@ jobs:
   linux:
     runs-on: ubuntu-latest
     steps:
-      - run: sudo apt update
-      - run: sudo apt upgrade
-      - run: sudo apt dist-upgrade
+      #- run: sudo apt update
+      #- run: sudo apt upgrade
+      #- run: sudo apt dist-upgrade
       - run: sudo apt install virtualbox
       # Repo version is old
       - run: curl -O https://releases.hashicorp.com/vagrant/2.2.14/vagrant_2.2.14_x86_64.deb
       - run: sudo apt install ./vagrant_2.2.14_x86_64.deb
       - run: vagrant --version
+      - run: vagrant init
       - run: vagrant up
-
-  windows:
-    runs-on: windows-latest
-    steps:
-      - run: choco install virtualbox --ignore-detected-reboot Ignore 
-      - run: choco install vagrant --ignore-detected-reboot Ignore 
-      - run: vagrant --version
-      - run: vagrant up
+  #windows:
+    #runs-on: windows-latest
+    #steps:
+      #- run: choco install virtualbox --ignore-detected-reboot Ignore 
+      #- run: choco install vagrant --ignore-detected-reboot Ignore 
+      #- run: vagrant --version
+      #- run: vagrant up
