@@ -18,6 +18,8 @@ jobs:
       - run: curl -O https://releases.hashicorp.com/vagrant/2.2.14/vagrant_2.2.14_x86_64.deb
       - run: sudo apt install ./vagrant_2.2.14_x86_64.deb
       - run: vagrant --version
+      - run: pwd
+      - run: ls
       - run: vagrant up
   #windows:
     #runs-on: windows-latest
