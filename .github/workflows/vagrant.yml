@@ -1,0 +1,29 @@
+name: Vagrant Build
+
+on:
+  push:
+    branches: [ master ]
+  pull_request:
+    branches: [ master ]
+
+jobs:
+  linux:
+    runs-on: ubuntu-latest
+    steps:
+      - run: sudo apt update
+      - run: sudo apt upgrade
+      - run: sudo apt dist-upgrade
+      - run: sudo apt install virtualbox
+      # Repo version is old
+      - run: curl -O https://releases.hashicorp.com/vagrant/2.2.14/vagrant_2.2.14_x86_64.deb
+      - run: curl sudo apt install ./vagrant_2.2.14_x86_64.deb
+      - run: vagrant --version
+      - run: vagrant up
+
+  windows:
+    runs-on: windows-latest
+    steps:
+      - run: choco install virtualbox
+      - run: choco install vagrant
+      - run: vagrant --version
+      - run: vagrant up
