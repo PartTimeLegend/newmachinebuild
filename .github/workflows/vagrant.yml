@@ -23,7 +23,7 @@ jobs:
   windows:
     runs-on: windows-latest
     steps:
-      - run: choco install virtualbox
-      - run: choco install vagrant
+      - run: choco install virtualbox --ignore-detected-reboot Ignore 
+      - run: choco install vagrant --ignore-detected-reboot Ignore 
       - run: vagrant --version
       - run: vagrant up
