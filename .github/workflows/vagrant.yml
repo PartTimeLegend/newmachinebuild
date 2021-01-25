@@ -20,6 +20,9 @@ jobs:
       - run: vagrant --version
       - run: pwd
       - run: ls
+      - run: cd ..
+      - run: pwd
+      - run: ls
       - run: vagrant up
   #windows:
     #runs-on: windows-latest
