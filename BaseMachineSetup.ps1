@@ -26,11 +26,11 @@ function installWithChoco()
     Write-Output "Starting install of $package at $(Get-Date -Format "MM/dd/yyyy HH:mm")"
     if (!$version)
     {
-        choco install $package -y --source=$chocorepo
+        choco install $package -y --source=$chocorepo --ignore-checksums
     }
     else
     {
-        choco install $package -y --source=$chocorepo -v $version
+        choco install $package -y --source=$chocorepo -v $version --ignore-checksums
     }
     $exitCode = $LASTEXITCODE
     Write-Verbose "Exit code was $exitCode"
@@ -100,7 +100,8 @@ installWithChoco "microsoft-teams.install"
 # Media
 installWithChoco "vlc"
 installWithChoco "spotify"
-
+# Features
+installWithChoco "wsl2"
 # Enable Windows Features
 Enable-WindowsOptionalFeature -Online -FeatureName Microsoft-Hyper-V -All
 Enable-WindowsOptionalFeature -Online -FeatureName Microsoft-Windows-Subsystem-Linux
