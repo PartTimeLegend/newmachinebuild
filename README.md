@@ -1,6 +1,6 @@
 # newmachinebuild
 
-![Powershell](https://github.com/PartTimeLegend/newmachinebuild/workflows/Powershell/badge.svg)
+![Powershell](https://github.com/PartTimeLegend/newmachinebuild/workflows/Powershell/badge.svg) <- it totally works just GitHub machine doesn't
 
 A new machine is a PITA. This makes it less, at least for me it does.
 
