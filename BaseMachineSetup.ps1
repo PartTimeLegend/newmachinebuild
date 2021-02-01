@@ -1,7 +1,7 @@
 Clear-Host
 # req admin rights, so restart if not admin
 if (!([Security.Principal.WindowsPrincipal][Security.Principal.WindowsIdentity]::GetCurrent()).IsInRole([Security.Principal.WindowsBuiltInRole] "Administrator"))
-{ 
+{
     Start-Process powershell.exe "-NoProfile -ExecutionPolicy Bypass -File `"$PSCommandPath`"" -Verb RunAs;
     exit
 }
@@ -26,7 +26,7 @@ function Read-KeyOrTimeout
     )
     $startTime = Get-Date
     $timeOut = New-TimeSpan -Seconds $seconds
-    Write-Output $prompt 
+    Write-Output $prompt
     while (-not $host.ui.RawUI.KeyAvailable) {
         $currentTime = Get-Date
         if ($currentTime -gt $startTime + $timeOut) {
@@ -36,7 +36,7 @@ function Read-KeyOrTimeout
     if ($host.ui.RawUI.KeyAvailable) {
         [string]$response = ($host.ui.RawUI.ReadKey("IncludeKeyDown,NoEcho")).character
     }
-    else 
+    else
     {
         $response = $default
     }
