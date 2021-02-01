@@ -14,5 +14,5 @@ jobs:
     steps:
     - uses: actions/checkout@v2
     - name: Run script
-      run: .\BaseMachineSetup.ps1
+      run: .\NewMachineSetup.ps1
       shell: powershell
