@@ -1,9 +1,9 @@
 Clear-Host
 # req admin rights, so restart if not admin
-if (!([Security.Principal.WindowsPrincipal][Security.Principal.WindowsIdentity]::GetCurrent()).IsInRole([Security.Principal.WindowsBuiltInRole] "Administrator")) 
+if (!([Security.Principal.WindowsPrincipal][Security.Principal.WindowsIdentity]::GetCurrent()).IsInRole([Security.Principal.WindowsBuiltInRole] "Administrator"))
 { 
-    Start-Process powershell.exe "-NoProfile -ExecutionPolicy Bypass -File `"$PSCommandPath`"" -Verb RunAs; 
-    exit 
+    Start-Process powershell.exe "-NoProfile -ExecutionPolicy Bypass -File `"$PSCommandPath`"" -Verb RunAs;
+    exit
 }
 # Begin logfile
 $username=( ( Get-WMIObject -class Win32_ComputerSystem | Select-Object -ExpandProperty username ) -split '\\' )[1]
@@ -17,46 +17,30 @@ mkdir C:\workspace -ErrorAction SilentlyContinue -Force
 # Define Choco Repo
 $chocorepo = "https://chocolatey.org/api/v2//"
 
-function Read-KeyOrTimeout 
+function Read-KeyOrTimeout
 {
- 
     Param(
         [int]$seconds = 5,
         [string]$prompt = 'Value',
         [string]$default = 'Unknown'
     )
- 
     $startTime = Get-Date
     $timeOut = New-TimeSpan -Seconds $seconds
- 
-    Write-Host $prompt
- 
+    Write-Host $prompt 
     while (-not $host.ui.RawUI.KeyAvailable) {
- 
         $currentTime = Get-Date
- 
         if ($currentTime -gt $startTime + $timeOut) {
- 
             Break
-    
         }
-    
     }
- 
     if ($host.ui.RawUI.KeyAvailable) {
- 
         [string]$response = ($host.ui.RawUI.ReadKey("IncludeKeyDown,NoEcho")).character
- 
     }
- 
-    else {
-    
+    else 
+    {
         $response = $default
- 
     }
- 
     return $response
- 
 }
  
 function installWithChoco()
@@ -70,18 +54,18 @@ function installWithChoco()
     {
         Invoke-Expression "choco install $package -y --source='$chocorepo'"
     }
-    else 
+    else
     {
         Invoke-Expression "choco install $package -y --source='$chocorepo' -v $version"
     }
     $exitCode = $LASTEXITCODE
     Write-Verbose "Exit code was $exitCode"
     $validExitCodes = @(0, 1605, 1614, 1641, 3010)
-    if ($validExitCodes -contains $exitCode) 
+    if ($validExitCodes -contains $exitCode)
     {
         Write-Host "The package $package was installed successfully"
     }
-    else 
+    else
     {
         Write-Host "The package $package was not correctly installed"
     }
@@ -97,7 +81,7 @@ function installGems()
     {
         Invoke-Expression "gem install $package"
     }
-    else 
+    else
     {
         Invoke-Expression "gem install $package -v $version"
     }
