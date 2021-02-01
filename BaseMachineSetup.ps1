@@ -26,7 +26,7 @@ function Read-KeyOrTimeout
     )
     $startTime = Get-Date
     $timeOut = New-TimeSpan -Seconds $seconds
-    Write-Host $prompt 
+    Write-Output $prompt 
     while (-not $host.ui.RawUI.KeyAvailable) {
         $currentTime = Get-Date
         if ($currentTime -gt $startTime + $timeOut) {
@@ -49,7 +49,7 @@ function installWithChoco()
         [Parameter(Mandatory=$true)][string]$package,
         [Parameter(Mandatory=$false)][string]$version
     )
-    Write-Host "Starting install of $package at $(Get-Date -Format "MM/dd/yyyy HH:mm")"
+    Write-Output "Starting install of $package at $(Get-Date -Format "MM/dd/yyyy HH:mm")"
     if (!$version)
     {
         Invoke-Expression "choco install $package -y --source='$chocorepo'"
@@ -63,11 +63,11 @@ function installWithChoco()
     $validExitCodes = @(0, 1605, 1614, 1641, 3010)
     if ($validExitCodes -contains $exitCode)
     {
-        Write-Host "The package $package was installed successfully"
+        Write-Output "The package $package was installed successfully"
     }
     else
     {
-        Write-Host "The package $package was not correctly installed"
+        Write-Output "The package $package was not correctly installed"
     }
 }
 function installGems()
@@ -76,7 +76,7 @@ function installGems()
         [Parameter(Mandatory=$true)][string]$package,
         [Parameter(Mandatory=$false)][string]$version
     )
-    Write-Host "Starting install of $package at $(Get-Date -Format "MM/dd/yyyy HH:mm")"
+    Write-Output "Starting install of $package at $(Get-Date -Format "MM/dd/yyyy HH:mm")"
     if (!$version)
     {
         Invoke-Expression "gem install $package"
