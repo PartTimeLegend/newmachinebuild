@@ -16,21 +16,9 @@ Set-ExecutionPolicy Bypass -Scope Process -Force; [System.Net.ServicePointManage
 mkdir C:\workspace -ErrorAction SilentlyContinue -Force
 # Define Choco Repo
 $chocorepo = "https://chocolatey.org/api/v2//"
-# Define user vars
-try
-{
-    # Assuming we can access AD get creds
-    $personname = Get-ADUser -identity $env:Username -Properties DisplayName | Select-Object DisplayName
-    $personemail = Get-ADUser -identity $env:Username -Properties EmailAddress | Select-Object EmailAddress
-}
-catch
-{
-    # AD didn't work
-    $personname = Read-KeyOrTimeout 30, 'What is your name?', 'Unknown'
-    $personemail = Read-KeyOrTimeout 30, 'What is your email?', 'Unknown'
-}
 
-function Read-KeyOrTimeout {
+function Read-KeyOrTimeout 
+{
  
     Param(
         [int]$seconds = 5,
@@ -71,7 +59,6 @@ function Read-KeyOrTimeout {
  
 }
  
-
 function installWithChoco()
 {
     param(
@@ -114,6 +101,19 @@ function installGems()
     {
         Invoke-Expression "gem install $package -v $version"
     }
+}
+# Define user vars
+try
+{
+    # Assuming we can access AD get creds
+    $personname = Get-ADUser -identity $env:Username -Properties DisplayName | Select-Object DisplayName
+    $personemail = Get-ADUser -identity $env:Username -Properties EmailAddress | Select-Object EmailAddress
+}
+catch
+{
+    # AD didn't work
+    $personname = Read-KeyOrTimeout 30, 'What is your name?', 'Unknown'
+    $personemail = Read-KeyOrTimeout 30, 'What is your email?', 'Unknown'
 }
 # Install required software
 Invoke-Expression "refreshenv"
