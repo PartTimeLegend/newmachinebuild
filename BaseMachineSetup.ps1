@@ -17,32 +17,6 @@ mkdir C:\workspace -ErrorAction SilentlyContinue -Force
 # Define Choco Repo
 $chocorepo = "https://chocolatey.org/api/v2//"
 
-function Read-KeyOrTimeout
-{
-    Param(
-        [int]$seconds = 5,
-        [string]$prompt = 'Value',
-        [string]$default = 'Unknown'
-    )
-    $startTime = Get-Date
-    $timeOut = New-TimeSpan -Seconds $seconds
-    Write-Output $prompt
-    while (-not $host.ui.RawUI.KeyAvailable) {
-        $currentTime = Get-Date
-        if ($currentTime -gt $startTime + $timeOut) {
-            Break
-        }
-    }
-    if ($host.ui.RawUI.KeyAvailable) {
-        [string]$response = ($host.ui.RawUI.ReadKey("IncludeKeyDown,NoEcho")).character
-    }
-    else
-    {
-        $response = $default
-    }
-    return $response
-}
-
 function installWithChoco()
 {
     param(
@@ -70,19 +44,6 @@ function installWithChoco()
         Write-Output "The package $package was not correctly installed"
     }
 }
-# Define user vars
-try
-{
-    # Assuming we can access AD get creds
-    $personname = Get-ADUser -identity $env:Username -Properties DisplayName | Select-Object DisplayName
-    $personemail = Get-ADUser -identity $env:Username -Properties EmailAddress | Select-Object EmailAddress
-}
-catch
-{
-    # AD didn't work
-    $personname = Read-KeyOrTimeout 30, 'What is your name?', 'Unknown'
-    $personemail = Read-KeyOrTimeout 30, 'What is your email?', 'Unknown'
-}
 # Install required software
 refreshenv
 # Source control
@@ -93,7 +54,7 @@ installWithChoco "poshgit"
 installWithChoco "winmerge"
 installWithChoco "meld"
 # Languages
-installWithChoco "ruby","2.5.1.1"
+installWithChoco "ruby"
 installWithChoco "golang"
 # IDEs
 installWithChoco "vscode"
