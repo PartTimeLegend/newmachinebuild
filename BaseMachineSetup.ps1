@@ -42,7 +42,7 @@ function Read-KeyOrTimeout
     }
     return $response
 }
- 
+
 function installWithChoco()
 {
     param(
