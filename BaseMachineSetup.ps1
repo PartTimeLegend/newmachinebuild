@@ -70,22 +70,6 @@ function installWithChoco()
         Write-Output "The package $package was not correctly installed"
     }
 }
-function installGems()
-{
-    param(
-        [Parameter(Mandatory=$true)][string]$package,
-        [Parameter(Mandatory=$false)][string]$version
-    )
-    Write-Output "Starting install of $package at $(Get-Date -Format "MM/dd/yyyy HH:mm")"
-    if (!$version)
-    {
-        gem install $package
-    }
-    else
-    {
-        gem install $package -v $version
-    }
-}
 # Define user vars
 try
 {
