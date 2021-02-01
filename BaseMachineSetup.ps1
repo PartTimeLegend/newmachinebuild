@@ -26,11 +26,11 @@ function installWithChoco()
     Write-Output "Starting install of $package at $(Get-Date -Format "MM/dd/yyyy HH:mm")"
     if (!$version)
     {
-        choco install $package -y --source='$chocorepo'
+        choco install $package -y --source=$chocorepo
     }
     else
     {
-        choco install $package -y --source='$chocorepo' -v $version
+        choco install $package -y --source=$chocorepo -v $version
     }
     $exitCode = $LASTEXITCODE
     Write-Verbose "Exit code was $exitCode"
