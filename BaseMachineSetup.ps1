@@ -100,7 +100,7 @@ catch
     $personemail = Read-KeyOrTimeout 30, 'What is your email?', 'Unknown'
 }
 # Install required software
-Invoke-Expression "refreshenv"
+refreshenv
 # Source control
 installWithChoco "git"
 installWithChoco "git-lfs"
