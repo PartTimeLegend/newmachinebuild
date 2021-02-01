@@ -52,11 +52,11 @@ function installWithChoco()
     Write-Output "Starting install of $package at $(Get-Date -Format "MM/dd/yyyy HH:mm")"
     if (!$version)
     {
-        Invoke-Expression "choco install $package -y --source='$chocorepo'"
+        choco install $package -y --source='$chocorepo'
     }
     else
     {
-        Invoke-Expression "choco install $package -y --source='$chocorepo' -v $version"
+        choco install $package -y --source='$chocorepo' -v $version
     }
     $exitCode = $LASTEXITCODE
     Write-Verbose "Exit code was $exitCode"
@@ -79,11 +79,11 @@ function installGems()
     Write-Output "Starting install of $package at $(Get-Date -Format "MM/dd/yyyy HH:mm")"
     if (!$version)
     {
-        Invoke-Expression "gem install $package"
+        gem install $package
     }
     else
     {
-        Invoke-Expression "gem install $package -v $version"
+        gem install $package -v $version
     }
 }
 # Define user vars
