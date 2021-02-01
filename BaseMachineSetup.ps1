@@ -56,12 +56,15 @@ installWithChoco "meld"
 # Languages
 installWithChoco "ruby"
 installWithChoco "golang"
+installWithChoco "python"
+installWithChoco "dotnetfx"
 # IDEs
 installWithChoco "vscode"
 # Text Editors
 installWithChoco "notepadplusplus"
 # Browsers
 installWithChoco "googlechrome"
+installWithChoco "firefox"
 # Infrastructure - Hashicorp
 installWithChoco "terraform"
 installWithChoco "vagrant"
@@ -69,6 +72,8 @@ installWithChoco "packer"
 # Utilities
 installWithChoco "7zip"
 installWithChoco "sysinternals"
+installWithChoco "powershell"
+installWithChoco "cmake"
 # Database management
 installWithChoco "pgadmin3"
 installWithChoco "ssms"
@@ -80,6 +85,8 @@ installWithChoco "slack"
 installWithChoco "winscp"
 installWithChoco "filezilla"
 installWithChoco "mremoteng"
+installWithChoco "teamviewer"
+installWithChoco "curl"
 # Cloud tools
 installWithChoco "awscli"
 installWithChoco "azure-cli"
@@ -87,6 +94,13 @@ installWithChoco "AWSTools.Powershell"
 # Containers
 installWithChoco "docker-desktop"
 installWithChoco "kubernetes-helm"
+# Video Calls
+installWithChoco "zoom"
+installWithChoco "microsoft-teams.install"
+# Media
+installWithChoco "vlc"
+installWithChoco "spotify"
+
 # Enable Windows Features
 Enable-WindowsOptionalFeature -Online -FeatureName Microsoft-Hyper-V -All
 Enable-WindowsOptionalFeature -Online -FeatureName Microsoft-Windows-Subsystem-Linux
