@@ -101,9 +101,9 @@ installWithChoco "microsoft-teams.install"
 installWithChoco "vlc"
 installWithChoco "spotify"
 # Features
-installWithChoco "wsl2"
+#installWithChoco "wsl2"
 # Enable Windows Features
-Enable-WindowsOptionalFeature -Online -FeatureName Microsoft-Hyper-V -All
-Enable-WindowsOptionalFeature -Online -FeatureName Microsoft-Windows-Subsystem-Linux
+#Enable-WindowsOptionalFeature -Online -FeatureName Microsoft-Hyper-V -All
+#Enable-WindowsOptionalFeature -Online -FeatureName Microsoft-Windows-Subsystem-Linux
 # A reboot will be called here. Do not put any further code.
 Stop-Transcript # Might not happen with reboot
