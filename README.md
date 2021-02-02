@@ -1,10 +1,10 @@
 # newmachinebuild
 
-![Powershell](https://github.com/PartTimeLegend/newmachinebuild/workflows/Powershell/badge.svg) <- it totally works just GitHub machine doesn't
+![Powershell](https://github.com/PartTimeLegend/newmachinebuild/workflows/Powershell/badge.svg) 
 
 A new machine is a PITA. This makes it less, at least for me it does.
 
-This is basically a [Chocolately](https://chocolatey.org) wrapper script. Don't pay it much attention. Oh it also installs WSL.
+This is basically a [Chocolately](https://chocolatey.org) wrapper script. Don't pay it much attention. Oh it also installs WSL if you uncomment that bit. GitHub can't do WSL.
 
 Relies of 
 
