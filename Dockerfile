@@ -1,4 +1,4 @@
-FROM mcr.microsoft.com/windows/insider:10.0.20287.1
+FROM mcr.microsoft.com/windows/servercore:1809
 LABEL maintainer="hi@antonybailey.net"
 RUN ["powershell", "New-Item", "-Path \"C:\"", "-ItemType \"directory\"", "-Name \"temp\""]
 WORKDIR C:/temp
