@@ -18,7 +18,7 @@ jobs:
       run: docker build . --file Dockerfile --tag parttimelegend-workstation:$(date +%s)
 
     - name: Push to GitHub Packages
-      uses: docker/build-push-action@v1
+      uses: docker/build-push-action@v2
       with:
         username: ${{ github.actor }}
         password: ${{ secrets.GITHUB_TOKEN }}
