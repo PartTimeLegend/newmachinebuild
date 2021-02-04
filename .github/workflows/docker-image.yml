@@ -13,10 +13,9 @@ jobs:
     runs-on: windows-latest
 
     steps:
-    - uses: mr-smithers-excellent/docker-build-push@v5
-      with:
-        image: newmachinebuild/parttimelegend-workstation:$(date +%s)
-        registry: ghcr.io
-        dockerfile: Dockerfile 
-        username: ${{ github.actor }}
-        password: ${{ secrets.GITHUB_TOKEN }} 
+      - uses: mr-smithers-excellent/docker-build-push@v5
+        with:
+          image: newmachinebuild/newmachinebuild
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }} 
