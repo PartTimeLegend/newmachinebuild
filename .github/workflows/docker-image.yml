@@ -16,6 +16,7 @@ jobs:
     - uses: mr-smithers-excellent/docker-build-push@v5
       with:
         image: newmachinebuild/parttimelegend-workstation:$(date +%s)
+        registry: ghcr.io
         dockerfile: Dockerfile 
         username: ${{ github.actor }}
         password: ${{ secrets.GITHUB_TOKEN }} 
