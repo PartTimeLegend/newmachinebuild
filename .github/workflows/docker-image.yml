@@ -16,6 +16,8 @@ jobs:
     - uses: actions/checkout@v2
     - name: Build the Docker image
       run: docker build . --file Dockerfile --tag parttimelegend-workstation:$(date +%s)
+    - name: Docker image list
+      run: docker images
 
     # Linux Only maybe one day the world will accept Windows containers
     #- name: Push to GitHub Packages
