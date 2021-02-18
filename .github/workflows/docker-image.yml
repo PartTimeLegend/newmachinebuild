@@ -30,3 +30,4 @@ jobs:
         password: ${{ secrets.DOCKERHUB_TOKEN }}
     - name: Publish to Docker Hub
       run: docker push parttimelegend/newmachinebuild
+      if: steps.extract_branch.outputs.branch == 'master'
