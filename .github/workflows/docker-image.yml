@@ -15,7 +15,7 @@ jobs:
     steps:
     - uses: actions/checkout@v2
     - name: Build the Docker image
-      run: docker build . --file Dockerfile --tag parttimelegend/newmachinebuild:$(date +%s) --no-cache
+      run: docker build . --file Dockerfile --tag parttimelegend/newmachinebuild:latest --no-cache
     - name: Docker image list
       run: docker images
     - name: Extract branch name
