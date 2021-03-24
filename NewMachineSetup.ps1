@@ -99,7 +99,7 @@ installWithChoco "zoom"
 installWithChoco "microsoft-teams.install"
 # Media
 installWithChoco "vlc"
-installWithChoco "spotify"
+installWithChoco "jabra-direct"
 # Features
 #installWithChoco "wsl2"
 # Enable Windows Features
