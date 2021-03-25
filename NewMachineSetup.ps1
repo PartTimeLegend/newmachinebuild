@@ -102,6 +102,8 @@ installWithChoco "vlc"
 installWithChoco "jabra-direct"
 # Features
 #installWithChoco "wsl2"
+# List Packages
+choco list --local-only
 # Enable Windows Features
 #Enable-WindowsOptionalFeature -Online -FeatureName Microsoft-Hyper-V -All
 #Enable-WindowsOptionalFeature -Online -FeatureName Microsoft-Windows-Subsystem-Linux
