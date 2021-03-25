@@ -60,6 +60,7 @@ installWithChoco "python"
 installWithChoco "dotnetfx"
 # IDEs
 installWithChoco "vscode"
+installWithChoco "postman"
 # Text Editors
 installWithChoco "notepadplusplus"
 # Browsers
