@@ -60,6 +60,14 @@ installWithChoco "python"
 installWithChoco "dotnetfx"
 # IDEs
 installWithChoco "vscode"
+# Not sure what Visual Studio to use - guess based on OS
+switch ((Get-WmiObject -class Win32_OperatingSystem).Caption)
+{
+  {$_.Contains("Home")} { installWithChoco "visualstudio2019community" }
+  {$_.Contains("Business")} { installWithChoco "visualstudio2019professional" }
+  {$_.Contains("Enterprise")} { installWithChoco "visualstudio2019enterprise" }
+  Default { installWithChoco "visualstudio2019community" } # Just in case we will install community but tidy it up later
+}
 # Text Editors
 installWithChoco "notepadplusplus"
 # Browsers
