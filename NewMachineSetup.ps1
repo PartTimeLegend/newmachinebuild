@@ -69,6 +69,7 @@ switch ((Get-WmiObject -class Win32_OperatingSystem).Caption)
   {$_.Contains("Enterprise")} { installWithChoco "visualstudio2019enterprise" }
   Default { installWithChoco "visualstudio2019community" } # Just in case we will install community but tidy it up later
 }
+installWithChoco "resharper"
 # Text Editors
 installWithChoco "notepadplusplus"
 # Browsers
