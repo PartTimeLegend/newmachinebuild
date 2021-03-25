@@ -103,6 +103,7 @@ installWithChoco "AWSTools.Powershell"
 # Containers
 installWithChoco "docker-desktop"
 installWithChoco "kubernetes-helm"
+installWithChoco "kubernetes-cli"
 # Video Calls
 installWithChoco "zoom"
 installWithChoco "microsoft-teams.install"
