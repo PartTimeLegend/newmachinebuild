@@ -62,7 +62,7 @@ installWithChoco "dotnetfx"
 installWithChoco "vscode"
 installWithChoco "postman"
 # Not sure what Visual Studio to use - guess based on OS
-switch ((Get-WmiObject -class Win32_OperatingSystem).Caption)
+switch ((Get-CimInstance -ClassName Win32_OperatingSystem).Caption)
 {
   {$_.Contains("Home")} { installWithChoco "visualstudio2019community" }
   {$_.Contains("Business")} { installWithChoco "visualstudio2019professional" }
