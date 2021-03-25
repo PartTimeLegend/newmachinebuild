@@ -60,6 +60,7 @@ installWithChoco "python"
 installWithChoco "dotnetfx"
 # IDEs
 installWithChoco "vscode"
+installWithChoco "postman"
 # Not sure what Visual Studio to use - guess based on OS
 switch ((Get-WmiObject -class Win32_OperatingSystem).Caption)
 {
