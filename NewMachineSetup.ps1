@@ -77,7 +77,6 @@ installWithChoco "googlechrome"
 installWithChoco "firefox"
 # Infrastructure - Hashicorp
 installWithChoco "terraform"
-installWithChoco "vagrant"
 installWithChoco "packer"
 # Utilities
 installWithChoco "7zip"
