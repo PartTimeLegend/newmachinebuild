@@ -86,6 +86,7 @@ installWithChoco "cmake"
 # Database management
 installWithChoco "pgadmin3"
 installWithChoco "ssms"
+installWithChoco "nosql-workbench"
 installWithChoco "sqltoolbelt"
 installWithChoco "studio3t"
 # Network tools
