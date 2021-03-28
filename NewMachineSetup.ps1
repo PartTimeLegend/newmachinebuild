@@ -124,6 +124,5 @@ switch ($windowsCaption)
 {
   {$_.Contains("Business") -or $_.Contains("Enterprise")} { EnableHyperV }
 }
-Enable-WindowsOptionalFeature -Online -FeatureName Microsoft-Windows-Subsystem-Linux
 # A reboot will be called here. Do not put any further code.
 Stop-Transcript # Might not happen with reboot
