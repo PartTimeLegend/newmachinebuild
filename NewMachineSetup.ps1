@@ -87,6 +87,8 @@ installWithChoco "cmake"
 installWithChoco "pgadmin3"
 installWithChoco "ssms"
 installWithChoco "nosql-workbench"
+installWithChoco "sqltoolbelt"
+installWithChoco "studio3t"
 # Network tools
 installWithChoco "openssh"
 installWithChoco "putty.install"
