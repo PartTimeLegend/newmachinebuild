@@ -16,33 +16,37 @@ Set-ExecutionPolicy Bypass -Scope Process -Force; [System.Net.ServicePointManage
 mkdir C:\workspace -ErrorAction SilentlyContinue -Force
 # Define Choco Repo
 $chocorepo = "https://chocolatey.org/api/v2//"
-
+$windowsCaption = (Get-CimInstance -ClassName Win32_OperatingSystem).Caption
 function installWithChoco()
 {
-    param(
-        [Parameter(Mandatory=$true)][string]$package,
-        [Parameter(Mandatory=$false)][string]$version
-    )
-    Write-Output "Starting install of $package at $(Get-Date -Format "MM/dd/yyyy HH:mm")"
-    if (!$version)
-    {
-        choco install $package -y --source=$chocorepo --ignore-checksums
-    }
-    else
-    {
-        choco install $package -y --source=$chocorepo -v $version --ignore-checksums
-    }
-    $exitCode = $LASTEXITCODE
-    Write-Verbose "Exit code was $exitCode"
-    $validExitCodes = @(0, 1605, 1614, 1641, 3010)
-    if ($validExitCodes -contains $exitCode)
-    {
-        Write-Output "The package $package was installed successfully"
-    }
-    else
-    {
-        Write-Output "The package $package was not correctly installed"
-    }
+  param(
+      [Parameter(Mandatory=$true)][string]$package,
+      [Parameter(Mandatory=$false)][string]$version
+  )
+  Write-Output "Starting install of $package at $(Get-Date -Format "MM/dd/yyyy HH:mm")"
+  if (!$version)
+  {
+      choco install $package -y --source=$chocorepo --ignore-checksums
+  }
+  else
+  {
+      choco install $package -y --source=$chocorepo -v $version --ignore-checksums
+  }
+  $exitCode = $LASTEXITCODE
+  Write-Verbose "Exit code was $exitCode"
+  $validExitCodes = @(0, 1605, 1614, 1641, 3010)
+  if ($validExitCodes -contains $exitCode)
+  {
+      Write-Output "The package $package was installed successfully"
+  }
+  else
+  {
+      Write-Output "The package $package was not correctly installed"
+  }
+}
+function EnableHyperV()
+{
+  Enable-WindowsOptionalFeature -Online -FeatureName Microsoft-Hyper-V -All
 }
 # Install required software
 refreshenv
@@ -62,7 +66,7 @@ installWithChoco "dotnetfx"
 installWithChoco "vscode"
 installWithChoco "postman"
 # Not sure what Visual Studio to use - guess based on OS
-switch ((Get-CimInstance -ClassName Win32_OperatingSystem).Caption)
+switch ($windowsCaption)
 {
   {$_.Contains("Home")} { installWithChoco "visualstudio2019community" }
   {$_.Contains("Business")} { installWithChoco "visualstudio2019professional" }
@@ -116,11 +120,13 @@ installWithChoco "microsoft-teams.install"
 installWithChoco "vlc"
 installWithChoco "jabra-direct"
 # Features
-#installWithChoco "wsl2"
+installWithChoco "wsl2"
 # List Packages
 choco list --local-only
 # Enable Windows Features
-#Enable-WindowsOptionalFeature -Online -FeatureName Microsoft-Hyper-V -All
-#Enable-WindowsOptionalFeature -Online -FeatureName Microsoft-Windows-Subsystem-Linux
+switch ($windowsCaption)
+{
+  {$_.Contains("Business") -or $_.Contains("Enterprise")} { EnableHyperV }
+}
 # A reboot will be called here. Do not put any further code.
 Stop-Transcript # Might not happen with reboot
