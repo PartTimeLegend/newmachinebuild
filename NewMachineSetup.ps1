@@ -124,6 +124,8 @@ installWithChoco "jabra-direct"
 installWithChoco "wsl2"
 # List Packages
 choco list --local-only
+# Just in case they changed versions during the long install do a final update check
+choco upgrade -y all
 # Enable Windows Features
 switch ($windowsCaption)
 {
