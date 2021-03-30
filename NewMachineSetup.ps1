@@ -82,6 +82,7 @@ installWithChoco "firefox"
 # Infrastructure - Hashicorp
 installWithChoco "terraform"
 installWithChoco "packer"
+installWithChoco "tflint"
 # Utilities
 installWithChoco "7zip"
 installWithChoco "sysinternals"
