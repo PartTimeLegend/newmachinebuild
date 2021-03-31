@@ -10,13 +10,6 @@ on:
   workflow_dispatch:
   
 jobs:
-  powershell:
-    runs-on: windows-latest
-    steps:
-    - uses: actions/checkout@v2
-    - name: Run script
-      run: .\NewMachineSetup.ps1
-      shell: powershell
   pwsh:
     runs-on: windows-latest
     steps:
