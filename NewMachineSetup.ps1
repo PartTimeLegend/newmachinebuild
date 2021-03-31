@@ -89,6 +89,7 @@ installWithChoco "sysinternals"
 installWithChoco "powershell"
 installWithChoco "cmake"
 installWithChoco "checksum"
+installWithChoco "burp-suite-free-edition"
 # Database management
 installWithChoco "pgadmin3"
 installWithChoco "ssms"
