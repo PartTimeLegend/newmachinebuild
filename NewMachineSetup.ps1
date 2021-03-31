@@ -89,6 +89,7 @@ installWithChoco "sysinternals"
 installWithChoco "powershell"
 installWithChoco "cmake"
 installWithChoco "checksum"
+installWithChoco "apimonitor"
 # Database management
 installWithChoco "pgadmin3"
 installWithChoco "ssms"
