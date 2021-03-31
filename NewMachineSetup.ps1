@@ -106,6 +106,7 @@ installWithChoco "filezilla"
 installWithChoco "mremoteng"
 installWithChoco "teamviewer"
 installWithChoco "curl"
+installWithChoco "wireshark"
 # Cloud tools
 installWithChoco "awscli"
 installWithChoco "azure-cli"
