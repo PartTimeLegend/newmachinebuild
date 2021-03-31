@@ -76,6 +76,7 @@ switch ($windowsCaption)
 installWithChoco "resharper"
 # Text Editors
 installWithChoco "notepadplusplus"
+installWithChoco "010editor"
 # Browsers
 installWithChoco "googlechrome"
 installWithChoco "firefox"
