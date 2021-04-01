@@ -76,6 +76,7 @@ switch ($windowsCaption)
 installWithChoco "resharper"
 # Text Editors
 installWithChoco "notepadplusplus"
+installWithChoco "010editor"
 # Browsers
 installWithChoco "googlechrome"
 installWithChoco "firefox"
@@ -90,6 +91,9 @@ installWithChoco "powershell"
 installWithChoco "cmake"
 installWithChoco "checksum"
 installWithChoco "ollydbg"
+installWithChoco "burp-suite-free-edition"
+installWithChoco "autopsy"
+installWithChoco "apimonitor"
 # Database management
 installWithChoco "pgadmin3"
 installWithChoco "ssms"
@@ -107,6 +111,7 @@ installWithChoco "filezilla"
 installWithChoco "mremoteng"
 installWithChoco "teamviewer"
 installWithChoco "curl"
+installWithChoco "nmap"
 # Cloud tools
 installWithChoco "awscli"
 installWithChoco "azure-cli"
