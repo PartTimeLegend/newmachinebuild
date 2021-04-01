@@ -90,6 +90,7 @@ installWithChoco "sysinternals"
 installWithChoco "powershell"
 installWithChoco "cmake"
 installWithChoco "checksum"
+installWithChoco "burp-suite-free-edition"
 installWithChoco "autopsy"
 installWithChoco "apimonitor"
 # Database management
