@@ -111,6 +111,7 @@ installWithChoco "filezilla"
 installWithChoco "mremoteng"
 installWithChoco "teamviewer"
 installWithChoco "curl"
+installWithChoco "usbpcap"
 installWithChoco "wireshark"
 installWithChoco "nmap"
 # Cloud tools
