@@ -132,6 +132,7 @@ installWithChoco "vlc"
 installWithChoco "jabra-direct"
 # Features
 installWithChoco "wsl2"
+installWithChoco "balsamiqmockups3"
 # List Packages
 choco list --local-only
 # Enable Windows Features
