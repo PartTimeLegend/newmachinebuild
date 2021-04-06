@@ -133,6 +133,7 @@ installWithChoco "jabra-direct"
 # Features
 installWithChoco "wsl2"
 # Business tools
+installWithChoco "balsamiqmockups3"
 switch ($windowsCaption)
 {
   {$_.Contains("Home")} { installWithChoco "office365homepremium" }
