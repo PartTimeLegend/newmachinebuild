@@ -94,6 +94,7 @@ installWithChoco "ollydbg"
 installWithChoco "burp-suite-free-edition"
 installWithChoco "autopsy"
 installWithChoco "apimonitor"
+installWithChoco "etcher"
 # Database management
 installWithChoco "pgadmin3"
 installWithChoco "ssms"
