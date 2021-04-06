@@ -132,6 +132,12 @@ installWithChoco "vlc"
 installWithChoco "jabra-direct"
 # Features
 installWithChoco "wsl2"
+# Business tools
+switch ($windowsCaption)
+{
+  {$_.Contains("Home")} { installWithChoco "office365homepremium" }
+  Default { installWithChoco "office365business"}
+}
 # List Packages
 choco list --local-only
 # Enable Windows Features
