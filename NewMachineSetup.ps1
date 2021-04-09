@@ -62,6 +62,7 @@ installWithChoco "ruby"
 installWithChoco "golang"
 installWithChoco "python"
 installWithChoco "dotnetfx"
+installWithChoco "dotnetcore-sdk"
 # IDEs
 installWithChoco "vscode"
 installWithChoco "postman"
