@@ -118,6 +118,7 @@ installWithChoco "curl"
 installWithChoco "usbpcap"
 installWithChoco "wireshark"
 installWithChoco "nmap"
+installWithChoco "wireguard"
 # Cloud tools
 installWithChoco "awscli"
 installWithChoco "azure-cli"
