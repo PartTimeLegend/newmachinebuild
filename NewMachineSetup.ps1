@@ -96,6 +96,7 @@ installWithChoco "burp-suite-free-edition"
 installWithChoco "autopsy"
 installWithChoco "apimonitor"
 installWithChoco "etcher"
+installWithChoco "yarn"
 # Database management
 installWithChoco "pgadmin3"
 installWithChoco "ssms"
