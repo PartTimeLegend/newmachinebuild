@@ -118,6 +118,8 @@ installWithChoco "curl"
 installWithChoco "usbpcap"
 installWithChoco "wireshark"
 installWithChoco "nmap"
+installWithChoco "openvpn"
+installWithChoco "tapwindows"
 # Cloud tools
 installWithChoco "awscli"
 installWithChoco "azure-cli"
