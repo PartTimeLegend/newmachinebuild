@@ -142,6 +142,8 @@ switch ($windowsCaption)
   {$_.Contains("Home")} { installWithChoco "office365homepremium" }
   Default { installWithChoco "office365business"}
 }
+# Testing tools
+installWithChoco "pscodehealth"
 # List Packages
 choco list --local-only
 # Enable Windows Features
