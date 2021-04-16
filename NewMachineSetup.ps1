@@ -98,6 +98,7 @@ installWithChoco "autopsy"
 installWithChoco "apimonitor"
 installWithChoco "etcher"
 installWithChoco "yarn"
+installWithChoco "keepass"
 # Database management
 installWithChoco "pgadmin3"
 installWithChoco "ssms"
