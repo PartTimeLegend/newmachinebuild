@@ -152,6 +152,8 @@ installWithChoco "pscodehealth"
 choco list --local-only
 # Go get
 go get -u -u github.com/jrhouston/tfk8s
+# Ruby gems - I will put these in a Gemfile
+gem install terraforming
 # Enable Windows Features
 switch ($windowsCaption)
 {
