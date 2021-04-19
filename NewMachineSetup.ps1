@@ -150,6 +150,8 @@ switch ($windowsCaption)
 installWithChoco "pscodehealth"
 # List Packages
 choco list --local-only
+# Go get
+go get -u -u github.com/jrhouston/tfk8s
 # Enable Windows Features
 switch ($windowsCaption)
 {
