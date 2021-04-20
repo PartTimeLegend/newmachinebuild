@@ -82,10 +82,11 @@ installWithChoco "010editor"
 # Browsers
 installWithChoco "googlechrome"
 installWithChoco "firefox"
-# Infrastructure - Hashicorp
+# Infrastructure
 installWithChoco "terraform"
 installWithChoco "packer"
 installWithChoco "tflint"
+installWithChoco "azure-pipelines-agent"
 # Utilities
 installWithChoco "7zip"
 installWithChoco "sysinternals"
