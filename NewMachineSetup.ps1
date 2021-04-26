@@ -100,6 +100,7 @@ installWithChoco "apimonitor"
 installWithChoco "etcher"
 installWithChoco "yarn"
 installWithChoco "keepass"
+installWithChoco "jq"
 # Database management
 installWithChoco "pgadmin3"
 installWithChoco "ssms"
