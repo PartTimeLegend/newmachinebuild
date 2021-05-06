@@ -87,7 +87,7 @@ jobs:
         with:
           sarif_file: reports
   anchore-build-scan:
-    nameme: Anchore Build Scan
+    name: Anchore Build Scan
     runs-on: windows-latest
     steps:
     - name: Checkout the code
