@@ -128,6 +128,7 @@ installWithChoco "tapwindows"
 installWithChoco "awscli"
 installWithChoco "azure-cli"
 installWithChoco "AWSTools.Powershell"
+installWithChoco "ServiceBusExplorer"
 # Containers
 installWithChoco "docker-desktop"
 installWithChoco "kubernetes-helm"

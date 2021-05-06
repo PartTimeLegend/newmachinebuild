@@ -1,4 +1,5 @@
 FROM mcr.microsoft.com/windows:2004
+HEALTHCHECK NONE
 LABEL maintainer="hi@antonybailey.net"
 RUN ["powershell", "New-Item", "-Path \"C:\"", "-ItemType \"directory\"", "-Name \"temp\""]
 WORKDIR C:/temp
