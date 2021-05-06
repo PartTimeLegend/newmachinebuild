@@ -86,6 +86,22 @@ jobs:
         uses: github/codeql-action/upload-sarif@v1
         with:
           sarif_file: reports
+  anchore-build-scan:
+    runs-on: windows-latest
+    steps:
+    - name: Checkout the code
+      uses: actions/checkout@v2
+    - name: Build the Docker image
+      run: docker build . --file Dockerfile --tag parttimelegend/newmachinebuild:latest --tag parttimelegend/newmachinebuild:$(date +%s) --no-cache
+    - name: Run the Anchore scan action itself with GitHub Advanced Security code scanning integration enabled
+      uses: anchore/scan-action@main
+      with:
+        image: "parttimelegend/newmachinebuild:latest"
+        acs-report-enable: true
+    - name: Upload Anchore Scan Report
+      uses: github/codeql-action/upload-sarif@v1
+      with:
+        sarif_file: results.sarif
   tag:
     name: Tag Release
     runs-on: ubuntu-latest
