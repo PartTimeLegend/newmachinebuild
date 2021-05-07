@@ -129,6 +129,7 @@ installWithChoco "awscli"
 installWithChoco "azure-cli"
 installWithChoco "AWSTools.Powershell"
 installWithChoco "ServiceBusExplorer"
+installWithChoco "microsoftazurestorageexplorer"
 # Containers
 installWithChoco "docker-desktop"
 installWithChoco "kubernetes-helm"
