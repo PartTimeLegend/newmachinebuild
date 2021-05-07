@@ -28,7 +28,7 @@ jobs:
       run: echo "##[set-output name=branch;]$(echo ${GITHUB_REF##*/})"
       id: extract_branch  
     - name: Build the Docker image
-      run: docker build . --file Dockerfile --tag parttimelegend/newmachinebuild:latest --tag parttimelegend/newmachinebuild:$(date +%s) --tag parttimelegend/newmachinebuild::${{ github.sha }}--no-cache
+      run: docker build . --file Dockerfile --tag parttimelegend/newmachinebuild:latest --tag parttimelegend/newmachinebuild:$(date +%s) --tag parttimelegend/newmachinebuild::${{ github.sha }} --no-cache
     - name: Docker image list
       run: docker images
     - name: Docker Login
