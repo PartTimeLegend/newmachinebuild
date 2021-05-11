@@ -101,6 +101,8 @@ installWithChoco "etcher"
 installWithChoco "yarn"
 installWithChoco "keepass"
 installWithChoco "jq"
+# Finance
+installWithChoco "electrum"
 # Database management
 installWithChoco "pgadmin3"
 installWithChoco "ssms"
