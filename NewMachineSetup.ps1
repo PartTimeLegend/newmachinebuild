@@ -26,11 +26,11 @@ function installWithChoco()
   Write-Output "Starting install of $package at $(Get-Date -Format "MM/dd/yyyy HH:mm")"
   if (!$version)
   {
-      choco install $package -y --source=$chocorepo --ignore-checksums
+      choco install $package -y --source=$chocorepo --ignore-checksums --execution-timeout 86400
   }
   else
   {
-      choco install $package -y --source=$chocorepo -v $version --ignore-checksums
+      choco install $package -y --source=$chocorepo -v $version --ignore-checksums --execution-timeout 86400
   }
   $exitCode = $LASTEXITCODE
   Write-Verbose "Exit code was $exitCode"
