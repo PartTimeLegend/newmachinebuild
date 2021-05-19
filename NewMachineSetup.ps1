@@ -90,7 +90,6 @@ installWithChoco "azure-pipelines-agent"
 # Utilities
 installWithChoco "7zip"
 installWithChoco "sysinternals"
-installWithChoco "powershell"
 installWithChoco "cmake"
 installWithChoco "checksum"
 installWithChoco "ollydbg"
