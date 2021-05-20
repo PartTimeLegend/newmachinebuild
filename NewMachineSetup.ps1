@@ -54,6 +54,7 @@ refreshenv
 installWithChoco "git"
 installWithChoco "git-lfs"
 installWithChoco "poshgit"
+installWithChoco "gitversion.portable"
 # File comparison
 installWithChoco "winmerge"
 installWithChoco "meld"
