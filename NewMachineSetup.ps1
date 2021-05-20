@@ -101,6 +101,9 @@ installWithChoco "etcher"
 installWithChoco "yarn"
 installWithChoco "keepass"
 installWithChoco "jq"
+# Runtimes
+installWitchChoco "gtk-runtime" 
+installWithChoco "gtksharp"
 # Finance
 installWithChoco "electrum"
 # Database management
