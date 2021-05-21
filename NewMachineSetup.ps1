@@ -104,11 +104,9 @@ installWithChoco "jq"
 # Finance
 installWithChoco "electrum"
 # Database management
-installWithChoco "pgadmin3"
 installWithChoco "ssms"
 installWithChoco "azure-documentdb-data-migration-tool"
 installWithChoco "nosql-workbench"
-installWithChoco "studio3t"
 # Network tools
 installWithChoco "openssh"
 installWithChoco "putty.install"
