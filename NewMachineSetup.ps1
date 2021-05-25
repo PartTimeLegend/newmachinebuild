@@ -121,7 +121,6 @@ installWithChoco "usbpcap"
 installWithChoco "wireshark"
 installWithChoco "nmap"
 installWithChoco "wireguard"
-installWithChoco "openvpn"
 installWithChoco "tapwindows"
 # Cloud tools
 installWithChoco "awscli"
