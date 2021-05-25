@@ -127,7 +127,7 @@ installWithChoco "awscli"
 installWithChoco "azure-cli"
 installWithChoco "ServiceBusExplorer"
 installWithChoco "microsoftazurestorageexplorer"
-installWichChoco "nugetpackageexplorer"
+installWithChoco "nugetpackageexplorer"
 # Containers
 installWithChoco "docker-desktop"
 installWithChoco "kubernetes-helm"
