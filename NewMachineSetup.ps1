@@ -125,7 +125,6 @@ installWithChoco "tapwindows"
 # Cloud tools
 installWithChoco "awscli"
 installWithChoco "azure-cli"
-installWithChoco "AWSTools.Powershell"
 installWithChoco "ServiceBusExplorer"
 installWithChoco "microsoftazurestorageexplorer"
 installWichChoco "nugetpackageexplorer"
