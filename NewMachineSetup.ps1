@@ -101,6 +101,7 @@ installWithChoco "etcher"
 installWithChoco "yarn"
 installWithChoco "keepass"
 installWithChoco "jq"
+installWithChoco "xavtool"
 # Finance
 installWithChoco "electrum"
 # Database management
