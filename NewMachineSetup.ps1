@@ -102,6 +102,7 @@ installWithChoco "yarn"
 installWithChoco "keepass"
 installWithChoco "jq"
 installWithChoco "xavtool"
+installWithChoco "expresso"
 # Finance
 installWithChoco "electrum"
 # Database management
