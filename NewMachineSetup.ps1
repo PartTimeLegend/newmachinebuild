@@ -136,7 +136,7 @@ switch ($windowsCaption)
       $packages += "office365business"
       EnableHyperV
     }
-  Default { $packages.Add("visualstudio2019community") } # Just in case we will install community but tidy it up later
+  Default { $packages += "visualstudio2019community" } # Just in case we will install community but tidy it up later
 }
 
 foreach ($package in $packages) {
