@@ -17,6 +17,77 @@ mkdir C:\workspace -ErrorAction SilentlyContinue -Force
 # Define Choco Repo
 $chocorepo = "https://chocolatey.org/api/v2//"
 $windowsCaption = (Get-CimInstance -ClassName Win32_OperatingSystem).Caption
+$packages = @(
+  "git",
+  "git-lfs",
+  "poshgit",
+  "gitversion.portable",
+  "winmerge",
+  "meld",
+  "ruby",
+  "golang",
+  "python",
+  "dotnetfx",
+  "dotnetcore-sdk",
+  "nodejs",
+  "vscode",
+  "postman",
+  "resharper",
+  "notepadplusplus",
+  "010editor",
+  "googlechrome",
+  "firefox",
+  "terraform",
+  "packer",
+  "tflint",
+  "azure-pipelines-agent",
+  "7zip",
+  "sysinternals",
+  "cmake",
+  "checksum",
+  "ollydbg",
+  "apimonitor",
+  "etcher",
+  "yarn",
+  "keepass",
+  "jq",
+  "xavtool",
+  "expresso",
+  "electrum",
+  "ssms",
+  "azure-documentdb-data-migration-tool",
+  "nosql-workbench",
+  "openssh",
+  "putty.install",
+  "openssl",
+  "slack",
+  "winscp",
+  "filezilla",
+  "mremoteng",
+  "teamviewer",
+  "curl",
+  "usbpcap",
+  "wireshark",
+  "nmap",
+  "wireguard",
+  "tapwindows",
+  "awscli",
+  "azure-cli",
+  "ServiceBusExplorer",
+  "microsoftazurestorageexplorer",
+  "nugetpackageexplorer",
+  "docker-desktop",
+  "kubernetes-helm",
+  "kubernetes-cli",
+  "minikube",
+  "zoom",
+  "microsoft-teams.install",
+  "vlc",
+  "jabra-direct",
+  "wsl2",
+  "balsamiqmockups3",
+  "pscodehealth"
+)
 function installWithChoco()
 {
   param(
@@ -46,110 +117,31 @@ function installWithChoco()
 }
 function EnableHyperV()
 {
-  Enable-WindowsOptionalFeature -Online -FeatureName Microsoft-Hyper-V -All
+  Enable-WindowsOptionalFeature -Online -FeatureName Microsoft-Hyper-V -All -NoRestart
 }
-# Install required software
-refreshenv
-# Source control
-installWithChoco "git"
-installWithChoco "git-lfs"
-installWithChoco "poshgit"
-installWithChoco "gitversion.portable"
-# File comparison
-installWithChoco "winmerge"
-installWithChoco "meld"
-# Languages
-installWithChoco "ruby"
-installWithChoco "golang"
-installWithChoco "python"
-installWithChoco "dotnetfx"
-installWithChoco "dotnetcore-sdk"
-installWithChoco "nodejs"
-# IDEs
-installWithChoco "vscode"
-installWithChoco "postman"
-# Not sure what Visual Studio to use - guess based on OS
+
 switch ($windowsCaption)
 {
-  {$_.Contains("Home")} { installWithChoco "visualstudio2019community" }
-  {$_.Contains("Business")} { installWithChoco "visualstudio2019professional" }
-  {$_.Contains("Enterprise")} { installWithChoco "visualstudio2019enterprise" }
-  Default { installWithChoco "visualstudio2019community" } # Just in case we will install community but tidy it up later
+  {$_.Contains("Home")} { 
+      $packages += "visualstudio2019community"
+      $packages += "office365homepremium"
+    }
+  {$_.Contains("Business")} { 
+      $packages += "visualstudio2019professional"
+      $packages += "office365business"
+      EnableHyperV
+    }
+  {$_.Contains("Enterprise")} { 
+      $packages += "visualstudio2019enterprise"
+      $packages += "office365business"
+      EnableHyperV
+    }
+  Default { $packages.Add("visualstudio2019community") } # Just in case we will install community but tidy it up later
 }
-installWithChoco "resharper"
-# Text Editors
-installWithChoco "notepadplusplus"
-installWithChoco "010editor"
-# Browsers
-installWithChoco "googlechrome"
-installWithChoco "firefox"
-# Infrastructure
-installWithChoco "terraform"
-installWithChoco "packer"
-installWithChoco "tflint"
-installWithChoco "azure-pipelines-agent"
-# Utilities
-installWithChoco "7zip"
-installWithChoco "sysinternals"
-installWithChoco "cmake"
-installWithChoco "checksum"
-installWithChoco "ollydbg"
-installWithChoco "apimonitor"
-installWithChoco "etcher"
-installWithChoco "yarn"
-installWithChoco "keepass"
-installWithChoco "jq"
-installWithChoco "xavtool"
-installWithChoco "expresso"
-# Finance
-installWithChoco "electrum"
-# Database management
-installWithChoco "ssms"
-installWithChoco "azure-documentdb-data-migration-tool"
-installWithChoco "nosql-workbench"
-# Network tools
-installWithChoco "openssh"
-installWithChoco "putty.install"
-installWithChoco "openssl"
-installWithChoco "slack"
-installWithChoco "winscp"
-installWithChoco "filezilla"
-installWithChoco "mremoteng"
-installWithChoco "teamviewer"
-installWithChoco "curl"
-installWithChoco "usbpcap"
-installWithChoco "wireshark"
-installWithChoco "nmap"
-installWithChoco "wireguard"
-installWithChoco "tapwindows"
-# Cloud tools
-installWithChoco "awscli"
-installWithChoco "azure-cli"
-installWithChoco "ServiceBusExplorer"
-installWithChoco "microsoftazurestorageexplorer"
-installWithChoco "nugetpackageexplorer"
-# Containers
-installWithChoco "docker-desktop"
-installWithChoco "kubernetes-helm"
-installWithChoco "kubernetes-cli"
-installWithChoco "minikube"
-# Video Calls
-installWithChoco "zoom"
-installWithChoco "microsoft-teams.install"
-# Media
-installWithChoco "vlc"
-installWithChoco "jabra-direct"
-# Features
-installWithChoco "wsl2"
-# Business tools
-installWithChoco "balsamiqmockups3"
-switch ($windowsCaption)
-{
-  {$_.Contains("Home")} { installWithChoco "office365homepremium" }
-  Default { installWithChoco "office365business"}
+
+foreach ($package in $packages) {
+    installWithChoco $package
 }
-# Testing tools
-installWithChoco "pscodehealth"
 # List Packages
 choco list --local-only
 # Go get
@@ -157,9 +149,5 @@ go get -u -u github.com/jrhouston/tfk8s
 # Ruby gems - I will put these in a Gemfile
 gem install terraforming
 # Enable Windows Features
-switch ($windowsCaption)
-{
-  {$_.Contains("Business") -or $_.Contains("Enterprise")} { EnableHyperV }
-}
 # A reboot will be called here. Do not put any further code.
 Stop-Transcript # Might not happen with reboot
