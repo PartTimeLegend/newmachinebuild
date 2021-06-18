@@ -86,7 +86,8 @@ $packages = @(
   "jabra-direct",
   "wsl2",
   "balsamiqmockups3",
-  "pscodehealth"
+  "pscodehealth",
+  "virtualbox"
 )
 function installWithChoco()
 {
