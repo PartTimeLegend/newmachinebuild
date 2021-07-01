@@ -63,7 +63,6 @@ $packages = @(
   "usbpcap",
   "wireshark",
   "nmap",
-  "wireguard",
   "tapwindows",
   "awscli",
   "azure-cli",
