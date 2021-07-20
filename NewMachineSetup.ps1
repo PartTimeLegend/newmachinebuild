@@ -13,7 +13,7 @@ Start-Transcript -path $LogFile -append
 # Install Chocolatey - We will use this for all our installs and upgrades
 Set-ExecutionPolicy Bypass -Scope Process -Force; [System.Net.ServicePointManager]::SecurityProtocol = [System.Net.ServicePointManager]::SecurityProtocol -bor 3072; Invoke-Expression ((New-Object System.Net.WebClient).DownloadString('https://chocolatey.org/install.ps1'))
 # Define Dir Structure
-mkdir C:\workspace -ErrorAction SilentlyContinue -Force
+New-Item -Path "c:\" -Name "workspace" -ItemType "Directory"
 # Define Choco Repo
 $chocorepo = "https://chocolatey.org/api/v2//"
 $windowsCaption = (Get-CimInstance -ClassName Win32_OperatingSystem).Caption
@@ -112,16 +112,16 @@ function EnableHyperV()
 
 switch ($windowsCaption)
 {
-  {$_.Contains("Home")} { 
+  {$_.Contains("Home")} {
       $packages += "visualstudio2019community"
       $packages += "office365homepremium"
     }
-  {$_.Contains("Business")} { 
+  {$_.Contains("Business")} {
       $packages += "visualstudio2019professional"
       $packages += "office365business"
       EnableHyperV
     }
-  {$_.Contains("Enterprise")} { 
+  {$_.Contains("Enterprise")} {
       $packages += "visualstudio2019enterprise"
       $packages += "office365business"
       EnableHyperV
