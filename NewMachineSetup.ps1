@@ -75,7 +75,8 @@ $packages = @(
   "minikube",
   "microsoft-teams.install",
   "wsl2",
-  "pscodehealth"
+  "pscodehealth",
+  "azure-cosmosdb-emulator"
 )
 function installWithChoco()
 {
