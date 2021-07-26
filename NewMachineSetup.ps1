@@ -76,7 +76,8 @@ $packages = @(
   "microsoft-teams.install",
   "wsl2",
   "pscodehealth",
-  "azure-cosmosdb-emulator"
+  "azure-cosmosdb-emulator",
+  "wiremockui"
 )
 function installWithChoco()
 {
