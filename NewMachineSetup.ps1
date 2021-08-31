@@ -80,6 +80,19 @@ $packages = @(
   "wiremockui",
   "avastfreeantivirus"
 )
+$features = @(
+  "IIS-WebServerRole",
+  "IIS-WebServer",
+  "IIS-CommonHttpFeatures",
+  "IIS-ManagementConsole",
+  "IIS-HttpErrors",
+  "IIS-HttpRedirect",
+  "IIS-WindowsAuthentication",
+  "IIS-StaticContent",
+  "IIS-DefaultDocument",
+  "IIS-HttpCompressionStatic",
+  "IIS-DirectoryBrowsing"
+)
 function installWithChoco()
 {
   param(
@@ -107,9 +120,17 @@ function installWithChoco()
       Write-Output "The package $package was not correctly installed"
   }
 }
+function installOptionalFeature()
+{
+  param(
+      [Parameter(Mandatory=$true)][string]$feature
+  )
+  Enable-WindowsOptionalFeature -Online -FeatureName $feature -All -NoRestart
+}
+
 function EnableHyperV()
 {
-  Enable-WindowsOptionalFeature -Online -FeatureName Microsoft-Hyper-V -All -NoRestart
+  installOptionalFeature "Microsoft-Hyper-V"
 }
 
 switch ($windowsCaption)
@@ -133,6 +154,9 @@ switch ($windowsCaption)
 
 foreach ($package in $packages) {
     installWithChoco $package
+}
+foreach ($feature in $features) {
+    installOptionalFeatures $feature
 }
 # List Packages
 choco list --local-only
