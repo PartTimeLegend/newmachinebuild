@@ -156,7 +156,7 @@ foreach ($package in $packages) {
     installWithChoco $package
 }
 foreach ($feature in $features) {
-    installOptionalFeatures $feature
+    installOptionalFeature $feature
 }
 # List Packages
 choco list --local-only
