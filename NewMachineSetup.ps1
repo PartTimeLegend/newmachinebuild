@@ -77,8 +77,7 @@ $packages = @(
   "wsl2",
   "pscodehealth",
   "azure-cosmosdb-emulator",
-  "wiremockui",
-  "avastfreeantivirus"
+  "wiremockui"
 )
 function installWithChoco()
 {
