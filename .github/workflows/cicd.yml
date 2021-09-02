@@ -12,7 +12,10 @@ on:
 jobs:
   powershell:
     name: Powershell
-    runs-on: windows-latest
+    strategy:
+      matrix:
+        os: [windows-2022, windows-latest]
+    runs-on: ${{ matrix.os }}
     steps:
     - uses: actions/checkout@v2
     - name: Run script
@@ -20,7 +23,10 @@ jobs:
       shell: powershell
   docker:
     name: Docker
-    runs-on: windows-latest
+    strategy:
+      matrix:
+        os: [windows-2022, windows-latest]
+    runs-on: ${{ matrix.os }}
     steps:
     - uses: actions/checkout@v2
     - name: Extract branch name
