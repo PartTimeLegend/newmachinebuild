@@ -92,6 +92,9 @@ $features = @(
   "IIS-HttpCompressionStatic",
   "IIS-DirectoryBrowsing"
 )
+$modules = @(
+  "Az"
+)
 function installWithChoco()
 {
   param(
@@ -126,6 +129,14 @@ function installOptionalFeature()
   )
   Enable-WindowsOptionalFeature -Online -FeatureName $feature -All -NoRestart
 }
+function Install-PowerShellModule()
+{
+  param(
+      [Parameter(Mandatory=$true)][string]$module
+  )
+  Install-Module -Name $module -Scope CurrentUser -Repository PSGallery -Force
+}
+
 
 function EnableHyperV()
 {
@@ -156,6 +167,9 @@ foreach ($package in $packages) {
 }
 foreach ($feature in $features) {
     installOptionalFeature $feature
+}
+foreach ($module in $modules) {
+    Install-PowerSellModule $module
 }
 # List Packages
 choco list --local-only
