@@ -169,7 +169,7 @@ foreach ($feature in $features) {
     installOptionalFeature $feature
 }
 foreach ($module in $modules) {
-    Install-PowerSellModule $module
+    Install-PowerShellModule $module
 }
 # List Packages
 choco list --local-only
