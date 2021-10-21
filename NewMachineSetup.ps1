@@ -77,7 +77,8 @@ $packages = @(
   "wsl2",
   "pscodehealth",
   "azure-cosmosdb-emulator",
-  "wiremockui"
+  "wiremockui",
+  "microsoft-windows-terminal"
 )
 $features = @(
   "IIS-WebServerRole",
