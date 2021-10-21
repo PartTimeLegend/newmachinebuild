@@ -78,7 +78,8 @@ $packages = @(
   "pscodehealth",
   "azure-cosmosdb-emulator",
   "wiremockui",
-  "k9s"
+  "k9s",
+  "microsoft-windows-terminal"
 )
 $features = @(
   "IIS-WebServerRole",
