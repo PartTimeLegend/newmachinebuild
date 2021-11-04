@@ -79,7 +79,8 @@ $packages = @(
   "azure-cosmosdb-emulator",
   "wiremockui",
   "k9s",
-  "microsoft-windows-terminal"
+  "microsoft-windows-terminal",
+  "zoom"
 )
 $features = @(
   "IIS-WebServerRole",
