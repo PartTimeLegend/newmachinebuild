@@ -98,7 +98,8 @@ $features = @(
   "IIS-StaticContent",
   "IIS-DefaultDocument",
   "IIS-HttpCompressionStatic",
-  "IIS-DirectoryBrowsing"
+  "IIS-DirectoryBrowsing",
+  "Microsoft-Windows-Subsystem-Linux"
 )
 function installWithChoco()
 {
