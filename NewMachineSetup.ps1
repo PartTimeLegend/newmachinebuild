@@ -46,6 +46,7 @@ $packages = @(
   "sysinternals",
   "cmake",
   "checksum",
+  "spin",
   "apimonitor",
   "yarn",
   "keepass",
