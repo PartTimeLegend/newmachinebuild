@@ -39,6 +39,7 @@ $packages = @(
   "firefox",
   "flux",
   "terraform",
+  "terragrunt",
   "packer",
   "tflint",
   "azure-pipelines-agent",
