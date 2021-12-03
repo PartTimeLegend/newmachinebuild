@@ -38,6 +38,7 @@ $packages = @(
   "googlechrome",
   "firefox",
   "flux",
+  "terraformer",
   "terraform",
   "terragrunt",
   "packer",
