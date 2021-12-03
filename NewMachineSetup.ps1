@@ -81,7 +81,8 @@ $packages = @(
   "wiremockui",
   "k9s",
   "microsoft-windows-terminal",
-  "zoom"
+  "zoom",
+  "fiddler"
 )
 $features = @(
   "IIS-WebServerRole",
