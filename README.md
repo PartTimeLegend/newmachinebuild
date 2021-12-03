@@ -13,6 +13,9 @@ As this is my personal set up I will not be accepting package PR's. I'm sorry, b
 powershell -nop -c "iex(New-Object Net.WebClient).DownloadString('https://raw.githubusercontent.com/PartTimeLegend/newmachinebuild/master/NewMachineSetup.ps1')"
 ```
 
+## Signed
+If you're getting a message about it not being signed then you will have to get the build artifact.
+
 ## Docker
 Because you totally wanted this as a container.
 ```powershell
