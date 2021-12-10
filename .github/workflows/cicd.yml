@@ -25,7 +25,7 @@ jobs:
     name: Bash
     strategy:
       matrix:
-        os: [macos-latest, macos-10.15, ubuntu-latest]
+        os: [macos-latest, macos-10.15]
     runs-on: ${{ matrix.os }}
     steps:
     - uses: actions/checkout@v2
@@ -45,37 +45,15 @@ jobs:
       run: echo "##[set-output name=branch;]$(echo ${GITHUB_REF##*/})"
       id: extract_branch  
     - name: Build the Docker image
-      run: docker build . --file Dockerfile.Windows --tag parttimelegend/newmachinebuildwindows:latest --tag parttimelegend/newmachinebuildwindows:$(date +%s) --tag parttimelegend/newmachinebuildwindows:${{ github.sha }} --no-cache
+      run: docker build . --file Dockerfile --tag parttimelegend/newmachinebuild:latest --tag parttimelegend/newmachinebuild:$(date +%s) --tag parttimelegend/newmachinebuild:${{ github.sha }} --no-cache
     - name: Docker image list
       run: docker images
     - name: Docker Login
       run: docker login --username ${{secrets.DOCKERHUB_USERNAME}}  --password ${{secrets.DOCKERHUB_TOKEN}} 
       if: steps.extract_branch.outputs.branch == 'master'
     - name: Docker Push
-      run: docker push parttimelegend/newmachinebuildwindows
+      run: docker push parttimelegend/newmachinebuild
       if: steps.extract_branch.outputs.branch == 'master'
-  docker-linux:
-    name: Docker Linux
-    strategy:
-      matrix:
-        os: [ubuntu-latest]
-    runs-on: ${{ matrix.os }}
-    steps:
-    - uses: actions/checkout@v2
-    - name: Extract branch name
-      shell: bash
-      run: echo "##[set-output name=branch;]$(echo ${GITHUB_REF##*/})"
-      id: extract_branch  
-    - name: Build the Docker image
-      run: docker build . --file Dockerfile.Linux --tag parttimelegend/newmachinebuildlinux:latest --tag parttimelegend/newmachinebuildlinux:$(date +%s) --tag parttimelegend/newmachinebuildlinux:${{ github.sha }} --no-cache
-    - name: Docker image list
-      run: docker images
-    - name: Docker Login
-      run: docker login --username ${{secrets.DOCKERHUB_USERNAME}}  --password ${{secrets.DOCKERHUB_TOKEN}} 
-      if: steps.extract_branch.outputs.branch == 'master'
-    - name: Docker Push
-      run: docker push parttimelegend/newmachinebuildlinux
-      if: steps.extract_branch.outputs.branch == 'master'      
   codacy-security-scan:
     name: Codacy Security Scan
     runs-on: ubuntu-latest

@@ -1,6 +1,6 @@
 # New Machine Build
 
-[![CICD](https://github.com/PartTimeLegend/newmachinebuild/actions/workflows/cicd.yml/badge.svg)](https://github.com/PartTimeLegend/newmachinebuild/actions/workflows/cicd.yml) [![Windows Docker Pulls](https://img.shields.io/docker/pulls/parttimelegend/newmachinebuildwindows)](https://hub.docker.com/r/parttimelegend/newmachinebuildwindows) [![Linux Docker Pulls](https://img.shields.io/docker/pulls/parttimelegend/newmachinebuildlinux)](https://hub.docker.com/r/parttimelegend/newmachinebuildlinux)
+[![CICD](https://github.com/PartTimeLegend/newmachinebuild/actions/workflows/cicd.yml/badge.svg)](https://github.com/PartTimeLegend/newmachinebuild/actions/workflows/cicd.yml) [![Windows Docker Pulls](https://img.shields.io/docker/pulls/parttimelegend/newmachinebuild)](https://hub.docker.com/r/parttimelegend/newmachinebuild) 
 
 A new machine is a PITA. This makes it less, at least for me it does.
 
@@ -21,8 +21,4 @@ curl -sSL https://raw.githubusercontent.com/PartTimeLegend/newmachinebuild/maste
 Because you totally wanted this as a container.
 ```powershell
 docker pull parttimelegend/newmachinebuildwindows
-```
-
-```bash
-docker pull parttimelegend/newmachinebuildlinux
 ```
