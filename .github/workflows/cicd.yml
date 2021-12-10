@@ -30,7 +30,7 @@ jobs:
     steps:
     - uses: actions/checkout@v2
     - name: Run script
-      run: ./NewMachineSetup.ps1
+      run: ./NewMachineSetup.sh
       shell: bash
   docker:
     name: Docker
