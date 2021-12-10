@@ -2,4 +2,5 @@ FROM linuxbrew/linuxbrew
 HEALTHCHECK NONE
 LABEL maintainer="hi@antonybailey.net"
 COPY NewMachineSetup.sh .
+RUN git -C /home/linuxbrew/.linuxbrew/Homebrew/Library/Taps/homebrew/homebrew-core fetch --unshallow
 RUN ./NewMachineSetup.sh
