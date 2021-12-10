@@ -1,7 +1,7 @@
 FROM ubuntu:latest
 HEALTHCHECK NONE
 LABEL maintainer="hi@antonybailey.net"
-RUN ["bash", "mkdir", "/tmp/setup"]
-WORKDIR /tmp/setup
-COPY NewMachineSetup.sh /tmp/setup/
-RUN /tmp/setup/NewMachineSetup.sh
+RUN ["bash", "mkdir", "/setup"]
+WORKDIR /setup
+COPY NewMachineSetup.sh /setup
+RUN /setup/NewMachineSetup.sh
