@@ -1,7 +1,4 @@
 FROM linuxbrew/linuxbrew
-RUN apt-get update
-RUN apt-get upgrade
-RUN apt-get dist-upgrade
 HEALTHCHECK NONE
 LABEL maintainer="hi@antonybailey.net"
 RUN ["mkdir", "/setup"]
