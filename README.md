@@ -23,6 +23,6 @@ Because you totally wanted this as a container.
 docker pull parttimelegend/newmachinebuildwindows
 ```
 
-bash
+```bash
 docker pull parttimelegend/newmachinebuildlinux
 ```
