@@ -4,4 +4,4 @@ LABEL maintainer="hi@antonybailey.net"
 RUN ["mkdir", "/setup"]
 WORKDIR /setup
 COPY NewMachineSetup.sh /setup
-RUN /setup/NewMachineSetup.sh
+RUN /setup/./NewMachineSetup.sh
