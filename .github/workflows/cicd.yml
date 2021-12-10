@@ -33,7 +33,7 @@ jobs:
       run: ./NewMachineSetup.sh
       shell: bash
   docker-windows:
-    name: Docker
+    name: Docker Windows
     strategy:
       matrix:
         os: [windows-2019]
@@ -55,7 +55,7 @@ jobs:
       run: docker push parttimelegend/newmachinebuildwindows
       if: steps.extract_branch.outputs.branch == 'master'
   docker-linux:
-    name: Docker
+    name: Docker Linux
     strategy:
       matrix:
         os: [ubuntu-latest]
