@@ -48,8 +48,16 @@ packages=("git"
   "microsoft-teams"
   "k9s")
 
+install () {
+  brew install $1
+}
+
+uninstall () {
+  brew uninstall $1
+}
+
 for package in ${packages[@]}; do
-  brew install $package
+  install $package
   status=$?
   [ $status -eq 0 ] && echo "$package was installed successfully" || echo "$package failed to install sucessfully"
 done
