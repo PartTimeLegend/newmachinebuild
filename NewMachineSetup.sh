@@ -51,4 +51,6 @@ packages=("git"
 
 for package in ${packages[@]}; do
   brew install $package
+  status=$?
+  [ $status -eq 0 ] && echo "$package command was successfully" || echo "$package failed to install sucessfully"
 done
