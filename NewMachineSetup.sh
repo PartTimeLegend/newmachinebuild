@@ -30,7 +30,6 @@ packages=("git"
   "pgadmin4"
   "azure-data-studio"
   "nosql-workbench"
-  "sqltoolbelt"
   "openssh"
   "openssl"
   "slack"
@@ -52,5 +51,5 @@ packages=("git"
 for package in ${packages[@]}; do
   brew install $package
   status=$?
-  [ $status -eq 0 ] && echo "$package command was successfully" || echo "$package failed to install sucessfully"
+  [ $status -eq 0 ] && echo "$package was installed successfully" || echo "$package failed to install sucessfully"
 done
