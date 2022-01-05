@@ -21,8 +21,19 @@ jobs:
     - name: Run script
       run: .\NewMachineSetup.ps1
       shell: powershell
-  docker:
-    name: Docker
+  bash:
+    name: Bash
+    strategy:
+      matrix:
+        os: [macos-latest, macos-10.15]
+    runs-on: ${{ matrix.os }}
+    steps:
+    - uses: actions/checkout@v2
+    - name: Run script
+      run: ./NewMachineSetup.sh
+      shell: bash
+  docker-windows:
+    name: Docker Windows
     strategy:
       matrix:
         os: [windows-2019]
