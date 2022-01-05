@@ -58,8 +58,27 @@ uninstall () {
   brew $?
 }
 
+force_link () {
+  brew link --overwrite $1
+}
+
+heroic_efforts () {
+  # As we cannot get meaniful exit codes from homebrew we have to assume all failures to be the same.
+  # So we are going to brute force a fix or die trying
+  force_link $1
+  retVal=$?
+  if [ $retVal -ne 0 ]; then
+    uninstall $1
+    if [ $retVal -eq 0 ]; then
+    # We managed to uninstall so now try to reinstall
+      install $1
+    fi
+  fi
+    exit $retVal
+}
+
 for package in ${packages[@]}; do
   install $package
-  status=$?
-  [ $status -eq 0 ] && echo "$package was installed successfully" || echo "$package failed to install sucessfully with exitcode $status" 
+  [ $? -eq 0 ] && echo "$package was installed successfully" || heroic_efforts $package
+  [ $? -eq 0 ] && echo "$package was heroically installed" || "$package was not installed for some reason and we could not correct this."
 done
