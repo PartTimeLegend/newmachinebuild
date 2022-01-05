@@ -50,14 +50,16 @@ packages=("git"
 
 install () {
   brew install $1
+  return $?
 }
 
 uninstall () {
   brew uninstall $1
+  brew $?
 }
 
 for package in ${packages[@]}; do
   install $package
   status=$?
-  [ $status -eq 0 ] && echo "$package was installed successfully" || echo "$package failed to install sucessfully"
+  [ $status -eq 0 ] && echo "$package was installed successfully" || echo "$package failed to install sucessfully with exitcode $status" 
 done
