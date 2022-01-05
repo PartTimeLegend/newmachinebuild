@@ -86,7 +86,9 @@ $packages = @(
   "microsoft-windows-terminal",
   "zoom",
   "fiddler",
-  "gnupg"
+  "gnupg",
+  "logitechgaming",
+  "logitech-options"
 )
 $features = @(
   "IIS-WebServerRole",
