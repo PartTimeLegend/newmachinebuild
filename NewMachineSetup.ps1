@@ -91,6 +91,7 @@ $packages = @(
   "logitech-options",
   "sops"
 )
+
 $features = @(
   "IIS-WebServerRole",
   "IIS-WebServer",
@@ -105,7 +106,12 @@ $features = @(
   "IIS-DirectoryBrowsing",
   "Microsoft-Windows-Subsystem-Linux"
 )
-function installWithChoco()
+
+$pips = @(
+  "localstack"
+)
+
+function Install-With-Choco()
 {
   param(
       [Parameter(Mandatory=$true)][string]$package,
@@ -132,7 +138,8 @@ function installWithChoco()
       Write-Output "The package $package was not correctly installed"
   }
 }
-function installOptionalFeature()
+
+function Install-Optional-Feature()
 {
   param(
       [Parameter(Mandatory=$true)][string]$feature
@@ -140,9 +147,17 @@ function installOptionalFeature()
   Enable-WindowsOptionalFeature -Online -FeatureName $feature -All -NoRestart
 }
 
+function Install-PIP()
+{
+  param(
+      [Parameter(Mandatory=$true)][string]$pip
+  )
+  pip install $pip
+}
+
 function EnableHyperV()
 {
-  installOptionalFeature "Microsoft-Hyper-V"
+  Install-Optional-Feature "Microsoft-Hyper-V"
 }
 
 switch ($windowsCaption)
@@ -165,17 +180,20 @@ switch ($windowsCaption)
 }
 
 foreach ($package in $packages) {
-    installWithChoco $package
+    Install-With-Choco $package
 }
+
 foreach ($feature in $features) {
-    installOptionalFeature $feature
+    Install-Optional-Feature $feature
 }
+
+foreach ($pip in $pip) {
+    Install-Pip $pip
+}
+
 # List Packages
 choco list --local-only
 # Go get
 go get -u -u github.com/jrhouston/tfk8s
-# Ruby gems - I will put these in a Gemfile
-gem install terraforming
-# Enable Windows Features
 # A reboot will be called here. Do not put any further code.
 Stop-Transcript # Might not happen with reboot
