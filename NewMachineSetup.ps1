@@ -88,7 +88,8 @@ $packages = @(
   "fiddler",
   "gnupg",
   "logitechgaming",
-  "logitech-options"
+  "logitech-options",
+  "sops"
 )
 $features = @(
   "IIS-WebServerRole",
