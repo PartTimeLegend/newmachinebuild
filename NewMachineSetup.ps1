@@ -148,16 +148,16 @@ function EnableHyperV()
 switch ($windowsCaption)
 {
   {$_.Contains("Home")} {
-      $packages += "visualstudio2019community"
+      $packages += "visualstudio2022community"
       $packages += "office365homepremium"
     }
   {$_.Contains("Business")} {
-      $packages += "visualstudio2019professional"
+      $packages += "visualstudio2022professional"
       $packages += "office365business"
       EnableHyperV
     }
   {$_.Contains("Enterprise")} {
-      $packages += "visualstudio2019enterprise"
+      $packages += "visualstudio2022enterprise"
       $packages += "office365business"
       EnableHyperV
     }
