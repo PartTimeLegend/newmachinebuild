@@ -89,7 +89,8 @@ $packages = @(
   "gnupg",
   "logitechgaming",
   "logitech-options",
-  "sops"
+  "sops",
+  "jabra-direct"
 )
 
 $features = @(
