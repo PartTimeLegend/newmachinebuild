@@ -1,0 +1,15 @@
+github:
+- .github/*
+mergify:
+- .mergify.yml
+docker:
+- Dockerfile
+license:
+- LICENSE
+windows:
+- NewMachineSetup.ps1
+mac:
+- NewMachineSetup.sh
+docs:
+- README.md
+- SECURITY.md
