@@ -90,7 +90,8 @@ $packages = @(
   "logitechgaming",
   "logitech-options",
   "sops",
-  "jabra-direct"
+  "jabra-direct",
+  "tfsec"
 )
 
 $features = @(
