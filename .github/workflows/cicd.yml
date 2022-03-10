@@ -135,3 +135,14 @@ jobs:
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         WITH_V: true
+        
+  github-status:
+    name: Check GitHub Status
+    runs-on: ubuntu-latest
+    steps:
+      -
+        name: Check GitHub Status
+        uses: crazy-max/ghaction-github-status@v2
+        with:
+          overall_threshold: minor
+          pages_threshold: partial_outage
