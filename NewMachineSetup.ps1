@@ -91,7 +91,8 @@ $packages = @(
   "logitech-options",
   "sops",
   "jabra-direct",
-  "tfsec"
+  "tfsec",
+  "pulumi"
 )
 
 $features = @(
