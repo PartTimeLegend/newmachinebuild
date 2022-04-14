@@ -93,7 +93,8 @@ $packages = @(
   "jabra-direct",
   "tfsec",
   "pulumi",
-  "obs-virtualcam"
+  "obs-virtualcam",
+  "act-cli"
 )
 
 $features = @(
