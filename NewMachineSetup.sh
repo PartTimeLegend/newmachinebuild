@@ -46,7 +46,8 @@ packages=("git"
   "minikube"
   "zoom"
   "microsoft-teams"
-  "k9s")
+  "k9s"
+  "act")
 
 install () {
   brew install $1
