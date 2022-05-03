@@ -94,7 +94,8 @@ $packages = @(
   "tfsec",
   "pulumi",
   "obs-virtualcam",
-  "act-cli"
+  "act-cli",
+  "ledger-live"
 )
 
 $features = @(
