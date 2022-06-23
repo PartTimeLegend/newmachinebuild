@@ -95,7 +95,8 @@ $packages = @(
   "pulumi",
   "obs-virtualcam",
   "act-cli",
-  "ledger-live"
+  "ledger-live",
+  "amazon-chime"
 )
 
 $features = @(
