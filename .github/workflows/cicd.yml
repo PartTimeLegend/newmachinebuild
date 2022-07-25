@@ -32,28 +32,6 @@ jobs:
     - name: Run script
       run: ./NewMachineSetup.sh
       shell: bash
-  docker-windows:
-    name: Docker Windows
-    strategy:
-      matrix:
-        os: [windows-2022, windows-2019, windows-latest]
-    runs-on: ${{ matrix.os }}
-    steps:
-    - uses: actions/checkout@v2
-    - name: Extract branch name
-      shell: bash
-      run: echo "##[set-output name=branch;]$(echo ${GITHUB_REF##*/})"
-      id: extract_branch  
-    - name: Build the Docker image
-      run: docker build . --file Dockerfile --tag parttimelegend/newmachinebuild${{ matrix.os }}:latest --tag parttimelegend/newmachinebuild${{ matrix.os }}:$(date +%s) --tag parttimelegend/newmachinebuild${{ matrix.os }}:${{ github.sha }} --no-cache
-    - name: Docker image list
-      run: docker images
-    - name: Docker Login
-      run: docker login --username ${{secrets.DOCKERHUB_USERNAME}}  --password ${{secrets.DOCKERHUB_TOKEN}} 
-      if: steps.extract_branch.outputs.branch == 'master'
-    - name: Docker Push
-      run: docker push parttimelegend/newmachinebuild${{ matrix.os }}
-      if: steps.extract_branch.outputs.branch == 'master'
   codacy-security-scan:
     name: Codacy Security Scan
     runs-on: ubuntu-latest
@@ -113,14 +91,3 @@ jobs:
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         WITH_V: true
-        
-  github-status:
-    name: Check GitHub Status
-    runs-on: ubuntu-latest
-    steps:
-      -
-        name: Check GitHub Status
-        uses: crazy-max/ghaction-github-status@v2
-        with:
-          overall_threshold: minor
-          pages_threshold: partial_outage
