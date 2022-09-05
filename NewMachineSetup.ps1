@@ -200,7 +200,5 @@ foreach ($pip in $pip) {
 
 # List Packages
 choco list --local-only
-# Go get
-go get -u -u github.com/jrhouston/tfk8s
 # A reboot will be called here. Do not put any further code.
 Stop-Transcript # Might not happen with reboot
