@@ -10,6 +10,8 @@ $username= Get-Content env:username
 $computer = Get-Content env:computername
 $Logfile = "C:\$computer-$username-$(Get-Date -Format "MM/dd/yyyy-HH:mm")-install.log"
 Start-Transcript -path $LogFile -append
+New-ItemProperty -Path "HKLM:\SYSTEM\CurrentControlSet\Control\FileSystem" `
+-Name "LongPathsEnabled" -Value 1 -PropertyType DWORD -Force
 # Install Chocolatey - We will use this for all our installs and upgrades
 Set-ExecutionPolicy Bypass -Scope Process -Force; [System.Net.ServicePointManager]::SecurityProtocol = [System.Net.ServicePointManager]::SecurityProtocol -bor 3072; Invoke-Expression ((New-Object System.Net.WebClient).DownloadString('https://chocolatey.org/install.ps1'))
 # Define Dir Structure
@@ -96,7 +98,11 @@ $packages = @(
   "obs-virtualcam",
   "act-cli",
   "ledger-live",
-  "amazon-chime"
+  "amazon-chime",
+  "gpg4win",
+  "vault",
+  "gcloudsdk",
+  "slack"
 )
 
 $features = @(
@@ -115,7 +121,27 @@ $features = @(
 )
 
 $pips = @(
-  "localstack"
+  "localstack",
+  "aiohttp",
+  "argparse",
+  "deepmerge",
+  "gql",
+  "hiyapyco",
+  "jmespath",
+  "mitogen",
+  "nested-lookup",
+  "python-jenkins",
+  "structlog",
+  "stormssh",
+  "numpy",
+  "slackweb",
+  "mitogen",
+  "yamllint",
+  "prometheus-client",
+  "pandas",
+  "python-dateutil",
+  "google-api-python-client",
+  "spotify"
 )
 
 function Install-With-Choco()
