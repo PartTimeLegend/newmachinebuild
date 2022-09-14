@@ -96,7 +96,11 @@ $packages = @(
   "obs-virtualcam",
   "act-cli",
   "ledger-live",
-  "amazon-chime"
+  "amazon-chime",
+  "gpg4win",
+  "vault",
+  "gcloudsdk",
+  "slack"
 )
 
 $features = @(
@@ -115,7 +119,26 @@ $features = @(
 )
 
 $pips = @(
-  "localstack"
+  "localstack",
+  "aiohttp",
+  "argparse",
+  "deepmerge",
+  "gql",
+  "hiyapyco",
+  "jmespath",
+  "mitogen",
+  "nested-lookup",
+  "python-jenkins",
+  "structlog",
+  "stormssh",
+  "numpy",
+  "slackweb",
+  "mitogen",
+  "yamllint",
+  "prometheus-client",
+  "pandas",
+  "python-dateutil",
+  "google-api-python-client"
 )
 
 function Install-With-Choco()
