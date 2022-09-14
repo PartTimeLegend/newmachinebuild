@@ -140,7 +140,8 @@ $pips = @(
   "prometheus-client",
   "pandas",
   "python-dateutil",
-  "google-api-python-client"
+  "google-api-python-client",
+  "spotify"
 )
 
 function Install-With-Choco()
