@@ -222,7 +222,7 @@ foreach ($feature in $features) {
     Install-Optional-Feature $feature
 }
 
-foreach ($pip in $pip) {
+foreach ($pip in $pips) {
     Install-Pip $pip
 }
 
