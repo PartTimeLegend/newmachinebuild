@@ -177,6 +177,7 @@ function Install-Optional-Feature()
   param(
       [Parameter(Mandatory=$true)][string]$feature
   )
+  Write-Output "Starting install of $feature at $(Get-Date -Format "MM/dd/yyyy HH:mm")"
   Enable-WindowsOptionalFeature -Online -FeatureName $feature -All -NoRestart
 }
 
@@ -185,6 +186,7 @@ function Install-PIP()
   param(
       [Parameter(Mandatory=$true)][string]$pip
   )
+  Write-Output "Starting install of $pip at $(Get-Date -Format "MM/dd/yyyy HH:mm")"
   pip install $pip
 }
 
