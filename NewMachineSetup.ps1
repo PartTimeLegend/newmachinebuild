@@ -102,7 +102,9 @@ $packages = @(
   "gpg4win",
   "vault",
   "gcloudsdk",
-  "slack"
+  "slack",
+  "spotify",
+  "openvpn"
 )
 
 $features = @(
@@ -140,8 +142,7 @@ $pips = @(
   "prometheus-client",
   "pandas",
   "python-dateutil",
-  "google-api-python-client",
-  "spotify"
+  "google-api-python-client"
 )
 
 function Install-With-Choco()
