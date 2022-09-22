@@ -196,10 +196,10 @@ function EnableHyperV()
   Install-Optional-Feature "Microsoft-Hyper-V"
 }
 
-function Install-Windows-Updates()
+function Install-Windows-Update()
 {
   Install-Module PSWindowsUpdate -Force
-  Get-WindowsUpdate -AcceptAll 
+  Get-WindowsUpdate -AcceptAll
   Install-WindowsUpdate -MicrosoftUpdate -IgnoreReboot -AcceptAll
 }
 
@@ -236,6 +236,6 @@ foreach ($pip in $pips) {
 # List Packages
 choco list --local-only
 # Run Windows Updates
-Install-Windows-Updates
+Install-Windows-Update
 # A reboot will be called here. Do not put any further code.
 Stop-Transcript # Might not happen with reboot
