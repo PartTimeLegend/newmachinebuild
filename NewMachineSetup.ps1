@@ -19,6 +19,7 @@ New-Item -Path "c:\" -Name "workspace" -ItemType "Directory"
 # Define Choco Repo
 $chocorepo = "https://chocolatey.org/api/v2//"
 $windowsCaption = (Get-CimInstance -ClassName Win32_OperatingSystem).Caption
+$windowsUpdate = $false
 $packages = @(
   "git",
   "git-lfs",
@@ -196,6 +197,31 @@ function EnableHyperV()
   Install-Optional-Feature "Microsoft-Hyper-V"
 }
 
+function Install-Windows-Update()
+{
+  $service = Get-Service -Name wuauserv -ErrorAction SilentlyContinue
+  if($null -eq $service)
+  {
+    Write-Output "Windows Update Service Does Not Exist."
+  }
+  else
+  {
+    if($serice.Status -eq "Disabled")
+    {
+      Write-Output "Attempting to enable " $service.name
+      Set-Service -Name $service.name -StartupType Automatic -Force
+    }
+    if($service.Status -eq "Stopped")
+    {
+      Write-Output "Attempting to start " $service.name
+      Start-Service -Name $service.Name
+    }
+    Install-Module PSWindowsUpdate -Force
+    Get-WindowsUpdate -AcceptAll
+    Install-WindowsUpdate -MicrosoftUpdate -IgnoreReboot -AcceptAll
+  }
+}
+
 switch ($windowsCaption)
 {
   {$_.Contains("Home")} {
@@ -215,19 +241,26 @@ switch ($windowsCaption)
   Default { $packages += "visualstudio2019community" } # Just in case we will install community but tidy it up later
 }
 
-foreach ($package in $packages) {
+foreach ($package in $packages)
+{
     Install-With-Choco $package
 }
 
-foreach ($feature in $features) {
+foreach ($feature in $features)
+{
     Install-Optional-Feature $feature
 }
 
-foreach ($pip in $pips) {
+foreach ($pip in $pips)
+{
     Install-Pip $pip
 }
-
 # List Packages
 choco list --local-only
+# Run Windows Updates
+if($true -eq $windowsUpdate)
+{
+  Install-Windows-Update
+}
 # A reboot will be called here. Do not put any further code.
 Stop-Transcript # Might not happen with reboot
