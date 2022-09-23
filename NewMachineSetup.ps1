@@ -198,9 +198,27 @@ function EnableHyperV()
 
 function Install-Windows-Update()
 {
-  Install-Module PSWindowsUpdate -Force
-  Get-WindowsUpdate -AcceptAll
-  Install-WindowsUpdate -MicrosoftUpdate -IgnoreReboot -AcceptAll
+  $service = Get-Service -Name wuauserv -ErrorAction SilentlyContinue
+  if($service -eq $null)
+  {
+    Write-Output "Windows Update Service Does Not Exist."  
+  } 
+  else 
+  {
+    if($serice.Status -eq "Disabled")
+    {
+      Write-Output "Attempting to enable " $service.name
+      Set-Service -Name $service.name -StartupType Automatic -Force
+    }
+    if($service.Status -eq "Stopped")
+    {
+      Write-Output "Attempting to start " $service.name
+      Start-Service -Name $service.Name
+    }
+    Install-Module PSWindowsUpdate -Force
+    Get-WindowsUpdate -AcceptAll
+    Install-WindowsUpdate -MicrosoftUpdate -IgnoreReboot -AcceptAll
+  }
 }
 
 switch ($windowsCaption)
