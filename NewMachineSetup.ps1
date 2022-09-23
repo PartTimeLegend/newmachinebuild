@@ -199,7 +199,7 @@ function EnableHyperV()
 function Install-Windows-Update()
 {
   $service = Get-Service -Name wuauserv -ErrorAction SilentlyContinue
-  if($service -eq $null)
+  if($null -eq $service)
   {
     Write-Output "Windows Update Service Does Not Exist."  
   } 
