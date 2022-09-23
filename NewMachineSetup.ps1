@@ -203,7 +203,7 @@ function Install-Windows-Update()
   if($null -eq $service)
   {
     Write-Output "Windows Update Service Does Not Exist."
-  } 
+  }
   else
   {
     if($serice.Status -eq "Disabled")
