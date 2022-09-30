@@ -225,7 +225,7 @@ foreach ($feature in $features)
     Install-Optional-Feature $feature
 }
 
-Install-Pip $pip
+Install-Pip
 
 # List Packages
 choco list --local-only
