@@ -101,7 +101,6 @@ black
 commitizen
 ansible-lint
 pytest
-localstack
 aiohttp
 argparse
 deepmerge
