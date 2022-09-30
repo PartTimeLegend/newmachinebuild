@@ -123,29 +123,6 @@ $features = @(
   "Microsoft-Windows-Subsystem-Linux"
 )
 
-$pips = @(
-  "localstack",
-  "aiohttp",
-  "argparse",
-  "deepmerge",
-  "gql",
-  "hiyapyco",
-  "jmespath",
-  "mitogen",
-  "nested-lookup",
-  "python-jenkins",
-  "structlog",
-  "stormssh",
-  "numpy",
-  "slackweb",
-  "mitogen",
-  "yamllint",
-  "prometheus-client",
-  "pandas",
-  "python-dateutil",
-  "google-api-python-client"
-)
-
 function Install-With-Choco()
 {
   param(
@@ -185,11 +162,8 @@ function Install-Optional-Feature()
 
 function Install-PIP()
 {
-  param(
-      [Parameter(Mandatory=$true)][string]$pip
-  )
-  Write-Output "Starting install of $pip at $(Get-Date -Format "MM/dd/yyyy HH:mm")"
-  pip install $pip
+  Write-Output "Starting install of requirements.txt at $(Get-Date -Format "MM/dd/yyyy HH:mm")"
+  pip install -r requirements.txt
 }
 
 function EnableHyperV()
@@ -251,10 +225,8 @@ foreach ($feature in $features)
     Install-Optional-Feature $feature
 }
 
-foreach ($pip in $pips)
-{
-    Install-Pip $pip
-}
+Install-Pip $pip
+
 # List Packages
 choco list --local-only
 # Run Windows Updates
