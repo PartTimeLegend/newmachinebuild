@@ -58,7 +58,7 @@ function Install-Optional-Feature()
       [Parameter(Mandatory=$true)][string]$feature
   )
   Write-Output "Starting install of $feature at $(Get-Date -Format "MM/dd/yyyy HH:mm")"
-  Enable-WindowsOptionalFeature -Online -FeatureName $feature -All -NoRestart
+  choco install $feature --source windowsfeatures
 }
 
 function Install-PIP()
