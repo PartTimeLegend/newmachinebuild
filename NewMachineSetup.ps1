@@ -116,14 +116,14 @@ switch ($windowsCaption)
   Default { $packages += "visualstudio2019community" } # Just in case we will install community but tidy it up later
 }
 
-foreach ($package in $chocolateypackages)
-{
-    Install-With-Choco $package
-}
-
 foreach ($feature in $features)
 {
     Install-Optional-Feature $feature
+}
+
+foreach ($package in $chocolateypackages)
+{
+    Install-With-Choco $package
 }
 
 Install-Pip
