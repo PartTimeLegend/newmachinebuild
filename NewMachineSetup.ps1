@@ -105,7 +105,7 @@ $packages = @(
   "gcloudsdk",
   "slack",
   "spotify",
-  "openvpn"
+  "openvpn-connect"
 )
 
 $features = @(
