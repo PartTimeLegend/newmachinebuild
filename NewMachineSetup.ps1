@@ -22,20 +22,7 @@ $windowsCaption = (Get-CimInstance -ClassName Win32_OperatingSystem).Caption
 $windowsUpdate = $false
 $chocolateypackages = Get-Content chocolatey.txt
 
-$features = @(
-  "IIS-WebServerRole",
-  "IIS-WebServer",
-  "IIS-CommonHttpFeatures",
-  "IIS-ManagementConsole",
-  "IIS-HttpErrors",
-  "IIS-HttpRedirect",
-  "IIS-WindowsAuthentication",
-  "IIS-StaticContent",
-  "IIS-DefaultDocument",
-  "IIS-HttpCompressionStatic",
-  "IIS-DirectoryBrowsing",
-  "Microsoft-Windows-Subsystem-Linux"
-)
+$features = Get-Content features.txt
 
 function Install-With-Choco()
 {
