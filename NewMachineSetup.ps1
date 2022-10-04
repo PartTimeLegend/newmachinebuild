@@ -58,7 +58,7 @@ function Install-Optional-Feature()
       [Parameter(Mandatory=$true)][string]$feature
   )
   Write-Output "Starting install of $feature at $(Get-Date -Format "MM/dd/yyyy HH:mm")"
-  Enable-WindowsOptionalFeature -Online -FeatureName $feature -All -NoRestart
+  choco install $feature --source windowsfeatures
 }
 
 function Install-PIP()
@@ -116,14 +116,14 @@ switch ($windowsCaption)
   Default { $packages += "visualstudio2019community" } # Just in case we will install community but tidy it up later
 }
 
-foreach ($package in $chocolateypackages)
-{
-    Install-With-Choco $package
-}
-
 foreach ($feature in $features)
 {
     Install-Optional-Feature $feature
+}
+
+foreach ($package in $chocolateypackages)
+{
+    Install-With-Choco $package
 }
 
 Install-Pip
