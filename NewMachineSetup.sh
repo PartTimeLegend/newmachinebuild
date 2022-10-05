@@ -6,53 +6,10 @@ if [ "$(expr substr $(uname -s) 1 5)" == "Linux" ]; then
   eval "$(/home/linuxbrew/.linuxbrew/bin/brew shellenv)"
 fi
 brew update
-packages=("git"
-  "git-lfs"
-  "meld"
-  "ruby"
-  "go"
-  "python"
-  "dotnet"
-  "dotnet-sdk"
-  "node"
-  "visual-studio-code"
-  "postman"
-  "visual-studio"
-  "010-editor"
-  "electrum"
-  "google-chrome"
-  "firefox"
-  "terraform"
-  "packer"
-  "tflint"
-  "p7zip"
-  "powershell"
-  "cmake"
-  "burp-suite"
-  "autopsy"
-  "balenaetcher"
-  "yarn"
-  "pgadmin4"
-  "azure-data-studio"
-  "nosql-workbench"
-  "openssh"
-  "openssl"
-  "slack"
-  "teamviewer"
-  "curl"
-  "wireshark"
-  "nmap"
-  "wireguard-go"
-  "awscli"
-  "azure-cli"
-  "docker"
-  "helm"
-  "kubernetes-cli"
-  "minikube"
-  "zoom"
-  "microsoft-teams"
-  "k9s"
-  "act")
+packages=()
+while IFS= read -r line; do
+   packages+=("$line")
+done <brews.txt
 
 install () {
   brew install $1
