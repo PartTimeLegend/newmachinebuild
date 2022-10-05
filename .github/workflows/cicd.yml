@@ -2,12 +2,35 @@ name: CICD
 
 on:
   push:
+    paths-ignore:
+    - "**.md"
+    - ".mergify.yml"
+    - "LICENSE"
+    - ".github/CODEOWNERS"
+    - ".github/PULL_REQUEST_TEMPLATE.md"
+    - ".github/labeler.yml"
+    - ".github/FUNDING.yml"
+    - ".github/workflows/autoupdate.yml"
+    - ".github/workflows/labeler.yml"
+    - ".github/workflows/size-label.yml"
     branches: [ master ]
   pull_request:
+    paths-ignore:
+    - "**.md"
+    - ".mergify.yml"
+    - "LICENSE"
+    - ".github/CODEOWNERS"
+    - ".github/PULL_REQUEST_TEMPLATE.md"
+    - ".github/labeler.yml"
+    - ".github/FUNDING.yml"
+    - ".github/workflows/autoupdate.yml"
+    - ".github/workflows/labeler.yml"
+    - ".github/workflows/size-label.yml"
     branches: [ master ]
   schedule:
     - cron:  '0 0 * * *'
   workflow_dispatch:
+
   
 jobs:
   powershell:
