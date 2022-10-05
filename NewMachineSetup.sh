@@ -1,7 +1,10 @@
 #!/usr/bin/env bash
 /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
 brew update
-packages=( "${(f)mapfile[brews.txt]}" )
+packages=()
+while IFS= read -r line; do
+   packages+=("$line")
+done <brews.txt
 
 install () {
   brew install $1
