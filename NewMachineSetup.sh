@@ -1,7 +1,8 @@
 #!/usr/bin/env bash
 /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
 brew update
-packages=$(readarray -t a < brews.txt)
+packages=$'\n' read -d '' -r -a lines < brews.txt
+
 
 install () {
   brew install $1
