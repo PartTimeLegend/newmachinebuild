@@ -1,5 +1,10 @@
 #!/usr/bin/env bash
 /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
+if [ "$(expr substr $(uname -s) 1 5)" == "Linux" ]; then
+  echo '# Set PATH, MANPATH, etc., for Homebrew.' >> /home/runner/.bash_profile
+  echo 'eval "$(/home/linuxbrew/.linuxbrew/bin/brew shellenv)"' >> /home/runner/.bash_profile
+  eval "$(/home/linuxbrew/.linuxbrew/bin/brew shellenv)"
+fi
 brew update
 packages=()
 while IFS= read -r line; do
