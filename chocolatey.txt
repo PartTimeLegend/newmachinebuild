@@ -83,3 +83,4 @@ gcloudsdk
 slack
 spotify
 openvpn-connect
+audacity
