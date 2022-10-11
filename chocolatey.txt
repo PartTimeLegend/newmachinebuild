@@ -83,3 +83,6 @@ gcloudsdk
 slack
 spotify
 openvpn-connect
+audacity
+audacity-lame
+audacity-ffmpeg
