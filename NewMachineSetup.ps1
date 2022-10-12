@@ -21,6 +21,7 @@ $chocorepo = "https://chocolatey.org/api/v2//"
 $windowsCaption = (Get-CimInstance -ClassName Win32_OperatingSystem).Caption
 $windowsUpdate = $false
 $chocolateypackages = Get-Content chocolatey.txt
+$gcloudComponents = Get-Content gcloud.txt
 
 $features = Get-Content features.txt
 
@@ -116,6 +117,15 @@ switch ($windowsCaption)
   Default { $packages += "visualstudio2019community" } # Just in case we will install community but tidy it up later
 }
 
+function Install-Gcloud-Component()
+{
+  param(
+      [Parameter(Mandatory=$true)][string]$component
+  )
+  Write-Output "Starting install of Gcloud component $component at $(Get-Date -Format "MM/dd/yyyy HH:mm")"
+  gcloud components install $component
+}
+
 foreach ($feature in $features)
 {
     Install-Optional-Feature $feature
@@ -124,6 +134,11 @@ foreach ($feature in $features)
 foreach ($package in $chocolateypackages)
 {
     Install-With-Choco $package
+}
+
+foreach ($component in $gcloudcomponents)
+{
+    Install-Gcloud-Component $component
 }
 
 Install-Pip
