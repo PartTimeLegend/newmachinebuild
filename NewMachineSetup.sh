@@ -29,3 +29,14 @@ for package in ${packages[@]}; do
   install $package
   [ $? -eq 0 ] && echo "$package was installed successfully" || "$package was not installed for some reason and we could not correct this."
 done
+
+while IFS= read -r line; do
+   gcloud+=("$line")
+done <gcloud.txt
+
+source "$(brew --prefix)/Caskroom/google-cloud-sdk/latest/google-cloud-sdk/path.bash.inc"
+
+for component in ${gcloud[@]}; do
+  gcloud components install $component --quiet
+  [ $? -eq 0 ] && echo "$package was installed successfully" || "$package was not installed for some reason and we could not correct this."
+done
