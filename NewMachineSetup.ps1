@@ -137,6 +137,10 @@ foreach ($package in $chocolateypackages)
     Install-With-Choco $package
 }
 
+(New-Object Net.WebClient).DownloadFile("https://dl.google.com/dl/cloudsdk/channels/rapid/GoogleCloudSDKInstaller.exe", "$env:Temp\GoogleCloudSDKInstaller.exe")
+
+& $env:Temp\GoogleCloudSDKInstaller.exe /S
+
 foreach ($component in $gcloudcomponents)
 {
     Install-Gcloud-Component $component
