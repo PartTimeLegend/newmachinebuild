@@ -51,6 +51,7 @@ function Install-With-Choco()
   {
       Write-Output "The package $package was not correctly installed"
   }
+  refreshenv
 }
 
 function Install-Optional-Feature()
