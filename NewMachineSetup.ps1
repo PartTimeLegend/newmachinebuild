@@ -124,7 +124,7 @@ function Install-Gcloud-Component()
       [Parameter(Mandatory=$true)][string]$component
   )
   Write-Output "Starting install of Gcloud component $component at $(Get-Date -Format "MM/dd/yyyy HH:mm")"
-  gcloud components install $component
+  gcloud components install $component --quiet
 }
 
 foreach ($feature in $features)
