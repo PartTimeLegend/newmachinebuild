@@ -45,3 +45,4 @@ zoom
 microsoft-teams
 k9s
 act
+google-cloud-sdk
