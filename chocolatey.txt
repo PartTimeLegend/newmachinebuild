@@ -11,8 +11,7 @@ dotnetfx
 dotnetcore-sdk
 nodejs
 vscode
-postman
-resharper
+postmanresharper
 notepadplusplus
 010editor
 googlechrome
@@ -87,3 +86,4 @@ audacity
 audacity-lame
 audacity-ffmpeg
 pgadmin4
+opera
