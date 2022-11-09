@@ -87,3 +87,4 @@ audacity-lame
 audacity-ffmpeg
 pgadmin4
 opera
+caffeine
