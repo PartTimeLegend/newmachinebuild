@@ -45,3 +45,5 @@ zoom
 microsoft-teams
 k9s
 act
+nerdctl
+
