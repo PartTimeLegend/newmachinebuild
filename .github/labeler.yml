@@ -8,8 +8,13 @@ license:
 - LICENSE
 windows:
 - NewMachineSetup.ps1
+- chocolatey.txt
+- features.txt
 mac:
 - NewMachineSetup.sh
+- brews.txt
 docs:
 - README.md
 - SECURITY.md
+python:
+- requirements.txt
