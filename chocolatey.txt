@@ -13,7 +13,6 @@ nodejs
 vscode
 postmanresharper
 notepadplusplus
-010editor
 googlechrome
 firefox
 flux
@@ -27,10 +26,8 @@ azure-pipelines-agent
 sysinternals
 cmake
 checksum
-spin
 apimonitor
 yarn
-keepass
 jq
 expresso
 ssms
