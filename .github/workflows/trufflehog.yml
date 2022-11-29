@@ -1,0 +1,25 @@
+name: Trufflehog
+
+on:
+  push:
+    branches: [ master ]
+  pull_request:
+  schedule:
+    - cron:  '0 0 * * *'
+  workflow_dispatch:
+  
+jobs:
+  powershell:
+    name: Powershell
+    strategy:
+      matrix:
+        os: [ubuntu-latest]
+      fail-fast: false
+    runs-on: ${{ matrix.os }}
+    steps:
+    - uses: actions/checkout@v2
+      with:
+        fetch-depth: 0
+        ref: ${{ github.head_ref }} // necessary for pull request workflow trigger
+    - name: trufflehog-actions-scan
+      uses: edplato/trufflehog-actions-scan@master
