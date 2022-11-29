@@ -85,3 +85,5 @@ audacity-ffmpeg
 pgadmin4
 opera
 caffeine
+trufflehog
+
