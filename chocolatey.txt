@@ -86,4 +86,3 @@ pgadmin4
 opera
 caffeine
 trufflehog
-
