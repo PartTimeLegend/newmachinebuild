@@ -86,3 +86,5 @@ pgadmin4
 opera
 caffeine
 trufflehog
+chef-workstation
+chef-client
