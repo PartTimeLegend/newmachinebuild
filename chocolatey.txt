@@ -88,3 +88,4 @@ caffeine
 trufflehog
 chef-workstation
 chef-client
+virtualbox
