@@ -89,3 +89,4 @@ trufflehog
 chef-workstation
 chef-client
 virtualbox
+tor-browser
