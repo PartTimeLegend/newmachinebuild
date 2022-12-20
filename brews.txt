@@ -46,3 +46,4 @@ microsoft-teams
 k9s
 act
 kops
+tor-browser
