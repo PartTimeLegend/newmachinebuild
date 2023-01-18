@@ -37,7 +37,7 @@ jobs:
     name: Powershell
     strategy:
       matrix:
-        os: [windows-2022, windows-2019, windows-latest]
+        os: [windows-latest]
       fail-fast: false
     runs-on: ${{ matrix.os }}
     steps:
@@ -49,7 +49,7 @@ jobs:
     name: Bash
     strategy:
       matrix:
-        os: [macos-latest, macos-12, macos-11, macos-10.15, ubuntu-latest, ubuntu-22.04, ubuntu-20.04, ubuntu-18.04]
+        os: [macos-latest, ubuntu-latest]
       fail-fast: false
     runs-on: ${{ matrix.os }}
     steps:
