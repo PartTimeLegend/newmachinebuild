@@ -29,3 +29,17 @@ for package in ${packages[@]}; do
   install $package
   [ $? -eq 0 ] && echo "$package was installed successfully" || "$package was not installed for some reason and we could not correct this."
 done
+
+install-pip () {
+  pip install -r requirements.txt
+  return $?
+}
+
+install-pip
+
+install-gems () {
+  bundle install
+  return $?
+}
+
+install-gems
