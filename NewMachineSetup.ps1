@@ -67,6 +67,13 @@ function Install-PIP()
   pip install -r requirements.txt
 }
 
+function Install-Gemfile()
+{
+  Write-Output "Starting install of Gemfile at $(Get-Date -Format "MM/dd/yyyy HH:mm")"
+  bundle install
+}
+
+
 function EnableHyperV()
 {
   Install-Optional-Feature "Microsoft-Hyper-V"
@@ -127,6 +134,7 @@ foreach ($package in $chocolateypackages)
 }
 
 Install-Pip
+Install-Gemfile
 
 # List Packages
 choco list --local-only
