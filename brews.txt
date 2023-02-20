@@ -46,4 +46,5 @@ microsoft-teams
 k9s
 act
 kops
+kind
 spotify
