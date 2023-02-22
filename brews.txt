@@ -30,7 +30,6 @@ nosql-workbench
 openssh
 openssl
 slack
-teamviewer
 curl
 wireshark
 nmap
