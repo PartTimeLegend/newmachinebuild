@@ -49,3 +49,11 @@ kops
 kustomize
 kind
 spotify
+cask
+htop
+wget
+links
+speedtest-cli
+tree
+tmux
+mas
