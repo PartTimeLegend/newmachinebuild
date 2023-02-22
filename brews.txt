@@ -14,7 +14,7 @@ visual-studio
 electrum
 google-chrome
 firefox
-terraform
+tfenv
 packer
 tflint
 p7zip
