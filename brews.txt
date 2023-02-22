@@ -57,3 +57,4 @@ tree
 tmux
 mas
 pulumi
+google-cloud-sdk
