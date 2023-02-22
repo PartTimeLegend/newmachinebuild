@@ -49,3 +49,4 @@ kops
 kustomize
 kind
 spotify
+pulumi
