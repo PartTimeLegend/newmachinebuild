@@ -58,3 +58,4 @@ tmux
 mas
 pulumi
 google-cloud-sdk
+workplace-chat
