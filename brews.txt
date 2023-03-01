@@ -60,3 +60,4 @@ pulumi
 google-cloud-sdk
 workplace-chat
 krew
+gimp
