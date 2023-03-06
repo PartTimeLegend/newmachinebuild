@@ -11,8 +11,18 @@ while IFS= read -r line; do
    packages+=("$line")
 done <brews.txt
 
+caskss=()
+while IFS= read -r line; do
+   casks+=("$line")
+done <casks.txt
+
 install () {
   brew install $1
+  return $?
+}
+
+install-cask () {
+  brew install --cask $1
   return $?
 }
 
@@ -28,6 +38,11 @@ force_link () {
 for package in ${packages[@]}; do
   install $package
   [ $? -eq 0 ] && echo "$package was installed successfully" || "$package was not installed for some reason and we could not correct this."
+done
+
+for cask in ${casks[@]}; do
+  install-cask $cask
+  [ $? -eq 0 ] && echo "$cask was installed successfully" || "$cask was not installed for some reason and we could not correct this."
 done
 
 install-pip () {
