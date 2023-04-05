@@ -30,3 +30,4 @@ microsoft-auto-update
 workplace-chat
 microsoft-office
 zoom
+github
