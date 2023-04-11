@@ -20,6 +20,7 @@ github
 slack
 google-chrome
 spotify
+sublime-text
 google-cloud-sdk
 visual-studio
 kubecontext
