@@ -86,7 +86,6 @@ lua
 lz4
 lzo
 mas
-mas
 minikube
 mpdecimal
 nano
@@ -124,7 +123,6 @@ speedtest-cli
 sqlite
 tfenv
 tflint
-tmux
 tmux
 tree
 utf8proc
