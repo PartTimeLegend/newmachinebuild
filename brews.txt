@@ -86,7 +86,6 @@ lua
 lz4
 lzo
 mas
-mas
 minikube
 mpdecimal
 nano
@@ -125,7 +124,6 @@ sqlite
 tfenv
 tflint
 tmux
-tmux
 tree
 utf8proc
 vde
@@ -138,3 +136,4 @@ xorgproto
 xz
 yarn
 zstd
+commitizen
