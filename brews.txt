@@ -138,3 +138,4 @@ xorgproto
 xz
 yarn
 zstd
+commitizen
