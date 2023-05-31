@@ -90,3 +90,4 @@ chef-workstation
 chef-client
 virtualbox
 tor-browser
+qflipper

@@ -32,3 +32,4 @@ workplace-chat
 microsoft-office
 zoom
 github
+qflipper
