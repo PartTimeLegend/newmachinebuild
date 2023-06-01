@@ -1,6 +1,5 @@
 alabaster
 stormssh
-ansible-core
 argparse-ext
 Arpeggio
 astroid

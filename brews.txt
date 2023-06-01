@@ -23,7 +23,6 @@ freetype
 gdbm
 gettext
 gh
-gh
 giflib
 gimp
 git
