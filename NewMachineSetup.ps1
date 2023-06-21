@@ -136,8 +136,6 @@ foreach ($package in $chocolateypackages)
 Install-Pip
 Install-Gemfile
 
-# List Packages
-choco list --local-only
 # Run Windows Updates
 if($true -eq $windowsUpdate)
 {
