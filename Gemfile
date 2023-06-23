@@ -1,5 +1,4 @@
 source 'https://rubygems.org'
-gem 'rubocop'
 gem 'overcommit'
 gem 'brakeman'
 gem 'reek'
