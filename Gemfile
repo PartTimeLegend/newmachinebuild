@@ -1,7 +1,2 @@
 source 'https://rubygems.org'
 gem 'overcommit'
-gem 'brakeman'
-gem 'reek'
-gem 'rspec'
-gem 'faker'
-gem 'dotenv'
