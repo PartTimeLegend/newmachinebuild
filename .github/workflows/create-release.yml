@@ -9,7 +9,7 @@ jobs:
     steps:
     - uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11 # v4
     - name: Create a Release
-      uses: elgohr/Github-Release-Action@20230626184259
+      uses: elgohr/Github-Release-Action@20231005120738
       env:
         GITHUB_TOKEN: ${{ secrets.RELEASE_TOKEN }}
       with:
