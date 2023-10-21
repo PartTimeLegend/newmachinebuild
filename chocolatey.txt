@@ -91,3 +91,4 @@ chef-client
 virtualbox
 tor-browser
 qflipper
+chirp
