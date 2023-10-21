@@ -33,3 +33,4 @@ microsoft-office
 zoom
 github
 qflipper
+chirp
