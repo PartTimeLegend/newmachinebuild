@@ -51,7 +51,9 @@ install-pip () {
 }
 
 register-tailscale () {
-  sudo tailscale up --authkey $tailscalekey
+  if [ ! -z "$tailscalekey" ]; then
+    sudo tailscale up --authkey $tailscalekey
+  fi
 }
 
 install-pip
