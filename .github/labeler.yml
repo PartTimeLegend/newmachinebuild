@@ -1,28 +1,24 @@
 github:
   - changed-files:
-    - .github/*
+    - any-glob-to-any-file: [.github/*]
 mergify:
   - changed-files:
-    - .mergify.yml
+    - any-glob-to-any-file: [.mergify.yml]
 docker:
   - changed-files:
-    - Dockerfile
+    - any-glob-to-any-file: [Dockerfile]
 license:
   - changed-files:
-  - LICENSE
+    - any-glob-to-any-file: [LICENSE]
 windows:
   - changed-files:
-    - NewMachineSetup.ps1
-    - chocolatey.txt
-    - features.txt
+    - any-glob-to-any-file: [NewMachineSetup.ps1, chocolatey.txt, features.txt]
 mac:
   - changed-files:
-    - NewMachineSetup.sh
-    - brews.txt
+    - any-glob-to-any-file: [NewMachineSetup.sh, brews.txt]
 docs:
   - changed-files:
-    - README.md
-    - SECURITY.md
+    - any-glob-to-any-file: [README.md, SECURITY.md]
 python:
   - changed-files:
-    - requirements.txt
+    - any-glob-to-any-file: [requirements.txt]
