@@ -1,20 +1,28 @@
 github:
-- .github/*
+  - changed-files:
+    - .github/*
 mergify:
-- .mergify.yml
+  - changed-files:
+    - .mergify.yml
 docker:
-- Dockerfile
+  - changed-files:
+    - Dockerfile
 license:
-- LICENSE
+  - changed-files:
+  - LICENSE
 windows:
-- NewMachineSetup.ps1
-- chocolatey.txt
-- features.txt
+  - changed-files:
+    - NewMachineSetup.ps1
+    - chocolatey.txt
+    - features.txt
 mac:
-- NewMachineSetup.sh
-- brews.txt
+  - changed-files:
+    - NewMachineSetup.sh
+    - brews.txt
 docs:
-- README.md
-- SECURITY.md
+  - changed-files:
+    - README.md
+    - SECURITY.md
 python:
-- requirements.txt
+  - changed-files:
+    - requirements.txt
