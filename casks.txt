@@ -34,3 +34,4 @@ zoom
 github
 qflipper
 chirp
+tailscale

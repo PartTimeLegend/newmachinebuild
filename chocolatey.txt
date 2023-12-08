@@ -92,3 +92,4 @@ virtualbox
 tor-browser
 qflipper
 chirp
+tailscale
