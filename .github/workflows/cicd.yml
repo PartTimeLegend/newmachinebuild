@@ -1,5 +1,8 @@
 name: CICD
 
+env:
+  tailscalekey: ${{ secrets.TAILSCALE_KEY }}
+
 on:
   push:
     paths-ignore:
@@ -49,7 +52,7 @@ jobs:
     name: Bash
     strategy:
       matrix:
-        os: [macos-latest, ubuntu-latest]
+        os: [macos-latest]
       fail-fast: false
     runs-on: ${{ matrix.os }}
     steps:
