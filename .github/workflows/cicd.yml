@@ -1,5 +1,8 @@
 name: CICD
 
+env:
+  tailscalekey: ${{ secrets.TAILSCALE_KEY }}
+
 on:
   push:
     paths-ignore:
