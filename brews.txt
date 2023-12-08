@@ -136,3 +136,4 @@ xz
 yarn
 zstd
 commitizen
+bash
