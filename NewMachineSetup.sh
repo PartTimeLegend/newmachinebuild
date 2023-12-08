@@ -50,6 +50,10 @@ install-pip () {
   return $?
 }
 
+register-tailscale () {
+  sudo tailscale up --authkey $tailscalekey
+}
+
 install-pip
 
 install-gems () {
@@ -58,3 +62,5 @@ install-gems () {
 }
 
 install-gems
+
+register-tailscale
