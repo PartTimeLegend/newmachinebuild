@@ -33,28 +33,40 @@ on:
 
   
 jobs:
-  powershell:
-    name: Powershell
+  windows:
+    name: Windows
     strategy:
       matrix:
         os: [windows-latest]
-        container: ["windows:20H2"]
       fail-fast: false
     runs-on: ${{ matrix.os }}
-    container:
-      image: ${{ matrix.container }}
     steps:
     - uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11 # v4
     - name: Run script
       run: .\NewMachineSetup.ps1
       shell: powershell
-  bash:
-    name: Bash
+  mac:
+    name: Mac
     strategy:
       matrix:
-        os: [macos-latest, ubuntu-latest]
+        os: [macos-latest]
       fail-fast: false
     runs-on: ${{ matrix.os }}
+    steps:
+    - uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11 # v4
+    - name: Run script
+      run: ./NewMachineSetup.sh
+      shell: bash
+  linux:
+    name: Linux
+    strategy:
+      matrix:
+        os: [ubuntu-latest]
+        container: ["ubuntu:latest"]
+      fail-fast: false
+    runs-on: ${{ matrix.os }}
+    container:
+      image: ${{ matrix.container }}
     steps:
     - uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11 # v4
     - name: Run script
