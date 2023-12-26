@@ -38,7 +38,7 @@ jobs:
     strategy:
       matrix:
         os: [windows-latest]
-        container: [windows:20H2]
+        container: ["windows:20H2"]
       fail-fast: false
     runs-on: ${{ matrix.os }}
     container:
