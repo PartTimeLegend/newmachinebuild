@@ -69,6 +69,8 @@ jobs:
       image: ${{ matrix.container }}
     steps:
     - uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11 # v4
+    - name: Install curl
+      run: apt-get -y update && apt-get -y install curl
     - name: Run script
       run: ./NewMachineSetup.sh
       shell: bash
