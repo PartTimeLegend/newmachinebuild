@@ -32,7 +32,7 @@ workplace-chat
 microsoft-office
 zoom
 tqsl
-
+macloggerdx
 github
 qflipper
 chirp
