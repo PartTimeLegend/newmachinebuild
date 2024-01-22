@@ -137,3 +137,4 @@ yarn
 zstd
 commitizen
 bash
+qt
