@@ -106,3 +106,4 @@ deepmerge
 gql
 hiyapyco
 nested-lookup
+sbapp[macos]
