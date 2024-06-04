@@ -71,12 +71,10 @@ tfsec
 pulumi
 obs-virtualcam
 act-cli
-ledger-live
 amazon-chime
 gpg4win
 vault
 gcloudsdk
-slack
 spotify
 openvpn-connect
 audacity
@@ -84,12 +82,8 @@ audacity-lame
 audacity-ffmpeg
 pgadmin4
 opera
-caffeine
 trufflehog
-chef-workstation
-chef-client
 virtualbox
-tor-browser
 qflipper
 chirp
 tailscale
