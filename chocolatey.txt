@@ -15,7 +15,6 @@ postmanresharper
 notepadplusplus
 googlechrome
 firefox
-flux
 terraformer
 terraform
 terragrunt
@@ -84,6 +83,4 @@ pgadmin4
 opera
 trufflehog
 virtualbox
-qflipper
-chirp
 tailscale
