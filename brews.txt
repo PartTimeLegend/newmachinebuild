@@ -136,3 +136,5 @@ zstd
 commitizen
 bash
 qt
+plantuml
+argocd
