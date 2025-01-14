@@ -92,6 +92,7 @@ nettle
 nmap
 node
 npth
+openshift-cli
 openjdk
 openldap
 openssh
