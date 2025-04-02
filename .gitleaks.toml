@@ -1,0 +1,21 @@
+title = "Gitleaks Configuration"
+
+[extend]
+useDefault = true
+
+[allowlist]
+description = "Global allowlist"
+paths = [
+  '''node_modules''',
+  '''venv''',
+  '''.git''',
+  '''.trunk''',
+]
+
+regexes = [
+  '''EXAMPLE_SECRET_[A-Za-z0-9]{16}''',
+]
+
+commits = [
+  # Add any commit hashes you want to exclude
+]
