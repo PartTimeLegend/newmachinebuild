@@ -261,6 +261,21 @@ switch ($windowsCaption)
 if (Test-Path "chocolatey.config" -PathType Leaf) {
     Write-Output "Installing packages from chocolatey.config..."
     try {
+        # First verify that the XML is valid
+        try {
+            [xml]$xmlContent = Get-Content -Path "chocolatey.config" -Raw
+            Write-Output "XML file validated successfully"
+        } catch {
+            Write-Output "Error in chocolatey.config XML format:"
+            Write-Output $_.Exception.Message
+            $script:failedInstallations += [PSCustomObject]@{
+                Package = "Chocolatey Config Validation"
+                Reason = $_.Exception.Message
+            }
+            throw "Invalid XML in chocolatey.config. Please fix before continuing."
+        }
+
+        # Then try to install
         choco install chocolatey.config --source=$chocorepo --ignore-checksums
     } catch {
         Write-Output ("Failed to install packages from chocolatey.config: {0}" -f $_.Exception.Message)
