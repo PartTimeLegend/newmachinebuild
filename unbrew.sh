@@ -21,6 +21,12 @@ fi
 
 echo "Uninstalling all Homebrew packages..."
 
+# If the Brewfile exists, try to uninstall everything from it first
+if [ -f "Brewfile" ]; then
+    echo "Attempting to uninstall packages from Brewfile..."
+    brew bundle cleanup --force || echo "Failed to cleanup via Brewfile, continuing with manual uninstall..."
+fi
+
 # Loop until no packages remain
 while [[ $(brew list | wc -l) -ne 0 ]]; do
   for package in $(brew list); do

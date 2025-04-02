@@ -22,10 +22,9 @@ This repository contains scripts to automate the setup of a new development mach
 This will:
 
 1. Install Homebrew if not already installed
-2. Install packages listed in `brews.txt`
-3. Install applications listed in `casks.txt`
-4. Install Python packages from `requirements.txt`
-5. Install Ruby gems from `Gemfile`
+2. Install all packages and applications from `Brewfile`
+3. Install Python packages from `requirements.txt`
+4. Install Ruby gems from `Gemfile`
 
 ### Windows
 
@@ -38,20 +37,39 @@ This will:
 1. Install Chocolatey if not already installed
 2. Create a workspace directory
 3. Install Windows features listed in `features.txt`
-4. Install applications listed in `chocolatey.txt`
+4. Install applications listed in `chocolatey.config`
 5. Install Python packages from `requirements.txt`
 6. Install Ruby gems from `Gemfile`
 
-## Customisation
+## Customization
 
-To customise the installations:
+To customize the installations:
 
-- Edit `brews.txt` for macOS Homebrew packages
-- Edit `casks.txt` for macOS applications
-- Edit `chocolatey.txt` for Windows applications
+- Edit `Brewfile` for macOS Homebrew packages and applications
+- Edit `chocolatey.config` for Windows applications
 - Edit `features.txt` for Windows features
 - Edit `requirements.txt` for Python packages
 - Edit `Gemfile` for Ruby gems
+
+## Brewfile
+
+The `Brewfile` uses Homebrew Bundle, a feature that allows you to specify all your desired packages, casks, and even Mac App Store applications in a single file.
+
+To manually install from the Brewfile:
+
+```bash
+brew bundle
+```
+
+## Chocolatey Config
+
+The `chocolatey.config` is an XML file that defines all the Windows packages to install. It follows the Chocolatey package configuration format.
+
+To manually install from the Chocolatey config:
+
+```powershell
+choco install chocolatey.config
+```
 
 ## Contributing
 
