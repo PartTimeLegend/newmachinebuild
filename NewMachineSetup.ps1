@@ -5,97 +5,93 @@ if (!([Security.Principal.WindowsPrincipal][Security.Principal.WindowsIdentity]:
     Start-Process powershell.exe "-NoProfile -ExecutionPolicy Bypass -File `"$PSCommandPath`"" -Verb RunAs;
     exit
 }
+
 # Begin logfile
-$username= Get-Content env:username
+$username = Get-Content env:username
 $computer = Get-Content env:computername
 $Logfile = "C:\$computer-$username-$(Get-Date -Format "MM/dd/yyyy-HH:mm")-install.log"
 Start-Transcript -path $LogFile -append
 New-ItemProperty -Path "HKLM:\SYSTEM\CurrentControlSet\Control\FileSystem" `
 -Name "LongPathsEnabled" -Value 1 -PropertyType DWORD -Force
-# Install Chocolatey - We will use this for all our installs and upgrades
-Set-ExecutionPolicy Bypass -Scope Process -Force; [System.Net.ServicePointManager]::SecurityProtocol = [System.Net.ServicePointManager]::SecurityProtocol -bor 3072; Invoke-Expression ((New-Object System.Net.WebClient).DownloadString('https://chocolatey.org/install.ps1'))
-# Define Dir Structure
-New-Item -Path "c:\" -Name "workspace" -ItemType "Directory"
-# Define Choco Repo
+
+# Define variables
 $chocorepo = "https://chocolatey.org/api/v2//"
 $windowsCaption = (Get-CimInstance -ClassName Win32_OperatingSystem).Caption
 $windowsUpdate = $false
-$chocolateypackages = Get-Content chocolatey.txt
 
-$features = Get-Content features.txt
+#region Functions
 
-function Install-With-Choco()
-{
+function Install-With-Choco {
   param(
       [Parameter(Mandatory=$true)][string]$package,
       [Parameter(Mandatory=$false)][string]$version
   )
   Write-Output "Starting install of $package at $(Get-Date -Format "MM/dd/yyyy HH:mm")"
-  if (!$version)
-  {
+  if (!$version) {
       choco install $package -y --source=$chocorepo --ignore-checksums
-  }
-  else
-  {
+  } else {
       choco install $package -y --source=$chocorepo -v $version --ignore-checksums
   }
   $exitCode = $LASTEXITCODE
   Write-Verbose "Exit code was $exitCode"
   $validExitCodes = @(0, 1605, 1614, 1641, 3010)
-  if ($validExitCodes -contains $exitCode)
-  {
+  if ($validExitCodes -contains $exitCode) {
       Write-Output "The package $package was installed successfully"
-  }
-  else
-  {
+  } else {
       Write-Output "The package $package was not correctly installed"
   }
 }
 
-function Install-Optional-Feature()
-{
+function Install-Optional-Feature {
   param(
       [Parameter(Mandatory=$true)][string]$feature
   )
-  Write-Output "Starting install of $feature at $(Get-Date -Format "MM/dd/yyyy HH:mm")"
+  Write-Output "Starting install of feature $feature at $(Get-Date -Format "MM/dd/yyyy HH:mm")"
   choco install $feature --source windowsfeatures
 }
 
-function Install-PIP()
-{
-  Write-Output "Starting install of requirements.txt at $(Get-Date -Format "MM/dd/yyyy HH:mm")"
-  pip install -r requirements.txt
+function Install-PIP {
+  Write-Output "Starting install of Python packages from requirements.txt at $(Get-Date -Format "MM/dd/yyyy HH:mm")"
+  if (Test-Path "requirements.txt" -PathType Leaf) {
+    if (Get-Command pip -ErrorAction SilentlyContinue) {
+      pip install -r requirements.txt
+    } else {
+      Write-Output "pip command not found, skipping Python package installation"
+    }
+  } else {
+    Write-Output "requirements.txt not found, skipping Python package installation"
+  }
 }
 
-function Install-Gemfile()
-{
-  Write-Output "Starting install of Gemfile at $(Get-Date -Format "MM/dd/yyyy HH:mm")"
-  bundle install
+function Install-Gemfile {
+  Write-Output "Starting install of Ruby gems from Gemfile at $(Get-Date -Format "MM/dd/yyyy HH:mm")"
+  if (Test-Path "Gemfile" -PathType Leaf) {
+    if (Get-Command bundle -ErrorAction SilentlyContinue) {
+      bundle install
+    } else {
+      Write-Output "bundle command not found, skipping Ruby gems installation"
+    }
+  } else {
+    Write-Output "Gemfile not found, skipping Ruby gems installation"
+  }
 }
 
-
-function EnableHyperV()
-{
+function EnableHyperV {
+  Write-Output "Enabling Hyper-V..."
   Install-Optional-Feature "Microsoft-Hyper-V"
 }
 
-function Install-Windows-Update()
-{
+function Install-Windows-Update {
   $service = Get-Service -Name wuauserv -ErrorAction SilentlyContinue
-  if($null -eq $service)
-  {
+  if($null -eq $service) {
     Write-Output "Windows Update Service Does Not Exist."
-  }
-  else
-  {
-    if($serice.Status -eq "Disabled")
-    {
-      Write-Output "Attempting to enable " $service.name
+  } else {
+    if($service.Status -eq "Disabled") {
+      Write-Output "Attempting to enable $($service.name)"
       Set-Service -Name $service.name -StartupType Automatic -Force
     }
-    if($service.Status -eq "Stopped")
-    {
-      Write-Output "Attempting to start " $service.name
+    if($service.Status -eq "Stopped") {
+      Write-Output "Attempting to start $($service.Name)"
       Start-Service -Name $service.Name
     }
     Install-Module PSWindowsUpdate -Force
@@ -104,42 +100,151 @@ function Install-Windows-Update()
   }
 }
 
+#endregion Functions
+
+# Install Chocolatey - We will use this for all our installs and upgrades
+Write-Output "Installing Chocolatey package manager..."
+if (-not (Get-Command choco -ErrorAction SilentlyContinue)) {
+    Set-ExecutionPolicy Bypass -Scope Process -Force
+    [System.Net.ServicePointManager]::SecurityProtocol = [System.Net.ServicePointManager]::SecurityProtocol -bor 3072
+    Invoke-Expression ((New-Object System.Net.WebClient).DownloadString('https://chocolatey.org/install.ps1'))
+} else {
+    Write-Output "Chocolatey is already installed."
+}
+
+# Create workspace directory
+Write-Output "Creating workspace directory..."
+if (-not (Test-Path "c:\workspace")) {
+    New-Item -Path "c:\" -Name "workspace" -ItemType "Directory" | Out-Null
+}
+
+# Install Windows features from features.txt
+if (Test-Path "features.txt" -PathType Leaf) {
+    $features = Get-Content features.txt
+    Write-Output "Installing Windows features..."
+    foreach ($feature in $features) {
+        try {
+            Install-Optional-Feature $feature
+        } catch {
+            # Use format operator instead of string interpolation with $_
+            Write-Output ("Failed to install feature: {0} - {1}" -f $feature, $_.Exception.Message)
+        }
+    }
+} else {
+    Write-Output "features.txt not found, skipping Windows features installation"
+}
+
+# Add Visual Studio and Office based on Windows edition
+Write-Output "Detecting Windows edition: $windowsCaption"
+$vsPackage = "visualstudio2022community"
+$officePackage = ""
+
 switch ($windowsCaption)
 {
   {$_.Contains("Home")} {
-      $packages += "visualstudio2022community"
-      $packages += "office365homepremium"
+      $vsPackage = "visualstudio2022community"
+      $officePackage = "office365homepremium"
+      Write-Output "Windows Home edition detected, will install $vsPackage and $officePackage"
     }
   {$_.Contains("Business")} {
-      $packages += "visualstudio2022professional"
-      $packages += "office365business"
-      EnableHyperV
+      $vsPackage = "visualstudio2022professional"
+      $officePackage = "office365business"
+      Write-Output "Windows Business edition detected, will install $vsPackage and $officePackage"
+      try {
+          EnableHyperV
+      } catch {
+          # Use format operator for error messages
+          Write-Output ("Failed to enable Hyper-V: {0}" -f $_.Exception.Message)
+      }
     }
   {$_.Contains("Enterprise")} {
-      $packages += "visualstudio2022enterprise"
-      $packages += "office365business"
-      EnableHyperV
+      $vsPackage = "visualstudio2022enterprise"
+      $officePackage = "office365business"
+      Write-Output "Windows Enterprise edition detected, will install $vsPackage and $officePackage"
+      try {
+          EnableHyperV
+      } catch {
+          # Use format operator for error messages
+          Write-Output ("Failed to enable Hyper-V: {0}" -f $_.Exception.Message)
+      }
     }
-  Default { $packages += "visualstudio2019community" } # Just in case we will install community but tidy it up later
+  Default {
+      Write-Output "Could not determine Windows edition, defaulting to Visual Studio Community"
+      $vsPackage = "visualstudio2022community"
+  }
 }
 
-foreach ($feature in $features)
-{
-    Install-Optional-Feature $feature
+# Install packages from chocolatey.config
+if (Test-Path "chocolatey.config" -PathType Leaf) {
+    Write-Output "Installing packages from chocolatey.config..."
+    try {
+        choco install chocolatey.config --source=$chocorepo --ignore-checksums
+    } catch {
+        # Use format operator for error messages
+        Write-Output ("Failed to install packages from chocolatey.config: {0}" -f $_.Exception.Message)
+    }
+} else {
+    Write-Output "chocolatey.config not found, trying fallback to chocolatey.txt"
+    if (Test-Path "chocolatey.txt" -PathType Leaf) {
+        $chocolateypackages = Get-Content chocolatey.txt
+        foreach ($package in $chocolateypackages) {
+            try {
+                Install-With-Choco -package $package
+            } catch {
+                # Use format operator for error messages
+                Write-Output ("Failed to install package: {0} - {1}" -f $package, $_.Exception.Message)
+            }
+        }
+    } else {
+        Write-Output "Neither chocolatey.config nor chocolatey.txt found, skipping package installation"
+    }
 }
 
-foreach ($package in $chocolateypackages)
-{
-    Install-With-Choco $package
+# Install Visual Studio and Office separately
+if ($vsPackage -ne "") {
+    Write-Output "Installing $vsPackage..."
+    try {
+        Install-With-Choco -package $vsPackage
+    } catch {
+        # Use format operator instead of string interpolation with $_
+        Write-Output ("Failed to install {0}: {1}" -f $vsPackage, $_.Exception.Message)
+    }
 }
 
-Install-Pip
-Install-Gemfile
-
-# Run Windows Updates
-if($true -eq $windowsUpdate)
-{
-  Install-Windows-Update
+if ($officePackage -ne "") {
+    Write-Output "Installing $officePackage..."
+    try {
+        Install-With-Choco -package $officePackage
+    } catch {
+        # Use format operator instead of string interpolation with $_
+        Write-Output ("Failed to install {0}: {1}" -f $officePackage, $_.Exception.Message)
+    }
 }
-# A reboot will be called here. Do not put any further code.
+
+# Install Python packages and Ruby Gems
+try {
+    Install-PIP
+} catch {
+    # Use format operator for error messages
+    Write-Output ("Failed to install Python packages: {0}" -f $_.Exception.Message)
+}
+
+try {
+    Install-Gemfile
+} catch {
+    # Use format operator for error messages
+    Write-Output ("Failed to install Ruby gems: {0}" -f $_.Exception.Message)
+}
+
+# Run Windows Updates if enabled
+if($true -eq $windowsUpdate) {
+    try {
+        Install-Windows-Update
+    } catch {
+        # Use format operator for error messages
+        Write-Output ("Failed to install Windows updates: {0}" -f $_.Exception.Message)
+    }
+}
+
+Write-Output "Setup completed successfully!"
 Stop-Transcript # Might not happen with reboot
