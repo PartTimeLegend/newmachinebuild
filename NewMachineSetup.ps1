@@ -87,11 +87,11 @@ function Install-Windows-Update {
     Write-Output "Windows Update Service Does Not Exist."
   } else {
     if($service.Status -eq "Disabled") {
-      Write-Output "Attempting to enable " $service.name
+      Write-Output "Attempting to enable $($service.name)"
       Set-Service -Name $service.name -StartupType Automatic -Force
     }
     if($service.Status -eq "Stopped") {
-      Write-Output "Attempting to start " $service.name
+      Write-Output "Attempting to start $($service.Name)"
       Start-Service -Name $service.Name
     }
     Install-Module PSWindowsUpdate -Force
@@ -126,7 +126,8 @@ if (Test-Path "features.txt" -PathType Leaf) {
         try {
             Install-Optional-Feature $feature
         } catch {
-            Write-Output "Failed to install feature: $feature - $_"
+            # Use format operator instead of string interpolation with $_
+            Write-Output ("Failed to install feature: {0} - {1}" -f $feature, $_.Exception.Message)
         }
     }
 } else {
@@ -149,13 +150,23 @@ switch ($windowsCaption)
       $vsPackage = "visualstudio2022professional"
       $officePackage = "office365business"
       Write-Output "Windows Business edition detected, will install $vsPackage and $officePackage"
-      try { EnableHyperV } catch { Write-Output "Failed to enable Hyper-V: $_" }
+      try {
+          EnableHyperV
+      } catch {
+          # Use format operator for error messages
+          Write-Output ("Failed to enable Hyper-V: {0}" -f $_.Exception.Message)
+      }
     }
   {$_.Contains("Enterprise")} {
       $vsPackage = "visualstudio2022enterprise"
       $officePackage = "office365business"
       Write-Output "Windows Enterprise edition detected, will install $vsPackage and $officePackage"
-      try { EnableHyperV } catch { Write-Output "Failed to enable Hyper-V: $_" }
+      try {
+          EnableHyperV
+      } catch {
+          # Use format operator for error messages
+          Write-Output ("Failed to enable Hyper-V: {0}" -f $_.Exception.Message)
+      }
     }
   Default {
       Write-Output "Could not determine Windows edition, defaulting to Visual Studio Community"
@@ -169,7 +180,8 @@ if (Test-Path "chocolatey.config" -PathType Leaf) {
     try {
         choco install chocolatey.config --source=$chocorepo --ignore-checksums
     } catch {
-        Write-Output "Failed to install packages from chocolatey.config: $_"
+        # Use format operator for error messages
+        Write-Output ("Failed to install packages from chocolatey.config: {0}" -f $_.Exception.Message)
     }
 } else {
     Write-Output "chocolatey.config not found, trying fallback to chocolatey.txt"
@@ -179,7 +191,8 @@ if (Test-Path "chocolatey.config" -PathType Leaf) {
             try {
                 Install-With-Choco -package $package
             } catch {
-                Write-Output "Failed to install package: $package - $_"
+                # Use format operator for error messages
+                Write-Output ("Failed to install package: {0} - {1}" -f $package, $_.Exception.Message)
             }
         }
     } else {
@@ -193,7 +206,8 @@ if ($vsPackage -ne "") {
     try {
         Install-With-Choco -package $vsPackage
     } catch {
-        Write-Output "Failed to install $vsPackage: $_"
+        # Use format operator instead of string interpolation with $_
+        Write-Output ("Failed to install {0}: {1}" -f $vsPackage, $_.Exception.Message)
     }
 }
 
@@ -202,7 +216,8 @@ if ($officePackage -ne "") {
     try {
         Install-With-Choco -package $officePackage
     } catch {
-        Write-Output "Failed to install $officePackage: $_"
+        # Use format operator instead of string interpolation with $_
+        Write-Output ("Failed to install {0}: {1}" -f $officePackage, $_.Exception.Message)
     }
 }
 
@@ -210,13 +225,15 @@ if ($officePackage -ne "") {
 try {
     Install-PIP
 } catch {
-    Write-Output "Failed to install Python packages: $_"
+    # Use format operator for error messages
+    Write-Output ("Failed to install Python packages: {0}" -f $_.Exception.Message)
 }
 
 try {
     Install-Gemfile
 } catch {
-    Write-Output "Failed to install Ruby gems: $_"
+    # Use format operator for error messages
+    Write-Output ("Failed to install Ruby gems: {0}" -f $_.Exception.Message)
 }
 
 # Run Windows Updates if enabled
@@ -224,7 +241,8 @@ if($true -eq $windowsUpdate) {
     try {
         Install-Windows-Update
     } catch {
-        Write-Output "Failed to install Windows updates: $_"
+        # Use format operator for error messages
+        Write-Output ("Failed to install Windows updates: {0}" -f $_.Exception.Message)
     }
 }
 
