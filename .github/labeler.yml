@@ -13,12 +13,14 @@ license:
 windows:
 - changed-files:
   - any-glob-to-any-file: NewMachineSetup.ps1
+  - any-glob-to-any-file: chocolatey.config
   - any-glob-to-any-file: chocolatey.txt
   - any-glob-to-any-file: features.txt
 mac:
 - changed-files:
   - any-glob-to-any-file: NewMachineSetup.sh
   - any-glob-to-any-file: brews.txt
+  - any-glob-to-any-file: Brewfile
 docs:
 - changed-files:
   - any-glob-to-any-file: README.md
