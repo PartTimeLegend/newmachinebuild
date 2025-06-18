@@ -136,6 +136,7 @@ brew "qt"
 brew "plantuml"
 brew "argocd"
 brew "holmesgpt"
+brew "cmctl"
 
 # Mac Applications (Casks)
 cask "010-editor"
