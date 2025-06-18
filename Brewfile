@@ -135,6 +135,7 @@ brew "bash"
 brew "qt"
 brew "plantuml"
 brew "argocd"
+brew "cmctl"
 
 # Mac Applications (Casks)
 cask "010-editor"
