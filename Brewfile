@@ -135,6 +135,7 @@ brew "bash"
 brew "qt"
 brew "plantuml"
 brew "argocd"
+brew "holmesgpt"
 brew "cmctl"
 
 # Mac Applications (Casks)
@@ -164,6 +165,7 @@ cask "tailscale"
 cask "visual-studio-code"
 cask "wireshark-chmodbpf"
 cask "zoom"
+
 
 # App Store applications
 # Uncomment and modify if you want to install apps from the Mac App Store
