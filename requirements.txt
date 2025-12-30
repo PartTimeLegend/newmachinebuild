@@ -110,3 +110,4 @@ sbapp[macos]
 setuptools>=78.1.1 # not directly required, pinned by Snyk to avoid a vulnerability
 bunyan
 
+werkzeug>=3.1.4 # not directly required, pinned by Snyk to avoid a vulnerability
