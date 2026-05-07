@@ -1,4 +1,7 @@
 name: Mind your language
+permissions:
+  contents: read
+  pull-requests: write
 on:
   issues:
     types:
