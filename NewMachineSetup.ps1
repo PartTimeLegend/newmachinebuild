@@ -1,338 +1,460 @@
-Clear-Host
-# req admin rights, so restart if not admin
-if (!([Security.Principal.WindowsPrincipal][Security.Principal.WindowsIdentity]::GetCurrent()).IsInRole([Security.Principal.WindowsBuiltInRole] "Administrator"))
-{
-    Start-Process powershell.exe "-NoProfile -ExecutionPolicy Bypass -File `"$PSCommandPath`"" -Verb RunAs;
-    exit
+param(
+    [switch]$ValidateOnly,
+    [switch]$SkipElevation,
+    [switch]$DryRun,
+    [int]$MaxRetries = 2
+)
+
+$ErrorActionPreference = "Stop"
+
+if (-not $ValidateOnly) {
+    Clear-Host
 }
 
-# Begin logfile
-$username = Get-Content env:username
-$computer = Get-Content env:computername
-$Logfile = "C:\$computer-$username-$(Get-Date -Format "MM/dd/yyyy-HH:mm")-install.log"
-Start-Transcript -path $LogFile -append
-New-ItemProperty -Path "HKLM:\SYSTEM\CurrentControlSet\Control\FileSystem" `
--Name "LongPathsEnabled" -Value 1 -PropertyType DWORD -Force
+if (-not $ValidateOnly -and -not $SkipElevation) {
+    if (!([Security.Principal.WindowsPrincipal][Security.Principal.WindowsIdentity]::GetCurrent()).IsInRole([Security.Principal.WindowsBuiltInRole] "Administrator")) {
+        Start-Process powershell.exe "-NoProfile -ExecutionPolicy Bypass -File `"$PSCommandPath`"" -Verb RunAs
+        exit
+    }
+}
 
-# Define variables
-$chocorepo = "https://chocolatey.org/api/v2//"
-$windowsCaption = (Get-CimInstance -ClassName Win32_OperatingSystem).Caption
-$windowsUpdate = $false
+$script:chocoRepo = "https://chocolatey.org/api/v2//"
+$script:windowsUpdate = $false
+$script:failedInstallations = @()
+$script:operationStates = @()
+$script:vsPackage = "visualstudio2022community"
+$script:officePackage = ""
+$script:windowsCaption = "Unknown"
 
-# Array to track failed installations
-$failedInstallations = @()
+function Add-FailedInstallation {
+    param(
+        [Parameter(Mandatory=$true)][string]$Package,
+        [Parameter(Mandatory=$true)][string]$Reason
+    )
 
-#region Functions
+    $script:failedInstallations += [PSCustomObject]@{
+        Package = $Package
+        Reason = $Reason
+    }
+}
+
+function Set-OperationState {
+    param(
+        [Parameter(Mandatory=$true)][string]$Operation,
+        [Parameter(Mandatory=$true)][string]$State,
+        [string]$Message = ""
+    )
+
+    $script:operationStates += [PSCustomObject]@{
+        Operation = $Operation
+        State = $State
+        Message = $Message
+        Timestamp = (Get-Date)
+    }
+}
+
+function Invoke-WithRetry {
+    param(
+        [Parameter(Mandatory=$true)][string]$Description,
+        [Parameter(Mandatory=$true)][ScriptBlock]$Action
+    )
+
+    if ($DryRun) {
+        Write-Output "[dry-run] $Description"
+        return $true
+    }
+
+    for ($attempt = 1; $attempt -le $MaxRetries; $attempt++) {
+        try {
+            & $Action
+            return $true
+        } catch {
+            if ($attempt -lt $MaxRetries) {
+                Write-Output "Retrying '$Description' (attempt $($attempt + 1)/$MaxRetries)..."
+                Start-Sleep -Seconds 2
+                continue
+            }
+
+            Write-Output "Failed '$Description': $($_.Exception.Message)"
+            return $false
+        }
+    }
+
+    return $false
+}
+
+function Run-Stage {
+    param(
+        [Parameter(Mandatory=$true)][string]$StageName,
+        [Parameter(Mandatory=$true)][ScriptBlock]$Action
+    )
+
+    Set-OperationState -Operation $StageName -State "planned"
+    Set-OperationState -Operation $StageName -State "running"
+
+    try {
+        & $Action
+        Set-OperationState -Operation $StageName -State "succeeded"
+        return $true
+    } catch {
+        Set-OperationState -Operation $StageName -State "failed" -Message $_.Exception.Message
+        Add-FailedInstallation -Package $StageName -Reason $_.Exception.Message
+        return $false
+    }
+}
+
+function Test-SetupPrerequisites {
+    $valid = $true
+
+    if (-not (Test-Path "features.txt" -PathType Leaf)) {
+        Add-FailedInstallation -Package "Windows Features" -Reason "features.txt not found"
+        $valid = $false
+    }
+
+    if (-not (Test-Path "chocolatey.config" -PathType Leaf)) {
+        Add-FailedInstallation -Package "Chocolatey packages" -Reason "chocolatey.config not found"
+        $valid = $false
+    } else {
+        try {
+            [xml]$null = Get-Content -Path "chocolatey.config" -Raw
+        } catch {
+            Add-FailedInstallation -Package "Chocolatey Config Validation" -Reason $_.Exception.Message
+            $valid = $false
+        }
+    }
+
+    return $valid
+}
 
 function Install-With-Choco {
-  param(
-      [Parameter(Mandatory=$true)][string]$package,
-      [Parameter(Mandatory=$false)][string]$version
-  )
-  Write-Output "Starting install of $package at $(Get-Date -Format "MM/dd/yyyy HH:mm")"
-  try {
-      if (!$version) {
-          choco install $package -y --source=$chocorepo --ignore-checksums
-      } else {
-          choco install $package -y --source=$chocorepo -v $version --ignore-checksums
-      }
-      $exitCode = $LASTEXITCODE
-      Write-Verbose "Exit code was $exitCode"
-      $validExitCodes = @(0, 1605, 1614, 1641, 3010)
-      if ($validExitCodes -contains $exitCode) {
-          Write-Output "The package $package was installed successfully"
-      } else {
-          Write-Output "The package $package was not correctly installed"
-          $script:failedInstallations += [PSCustomObject]@{
-              Package = $package
-              Reason = "Exit code $exitCode"
-          }
-      }
-  } catch {
-      Write-Output ("Failed to install {0}: {1}" -f $package, $_.Exception.Message)
-      $script:failedInstallations += [PSCustomObject]@{
-          Package = $package
-          Reason = $_.Exception.Message
-      }
-  }
+    param(
+        [Parameter(Mandatory=$true)][string]$Package,
+        [string]$Version
+    )
+
+    Write-Output "Starting install of $Package at $(Get-Date -Format 'MM/dd/yyyy HH:mm')"
+
+    $installSucceeded = Invoke-WithRetry -Description "choco install $Package" -Action {
+        if ([string]::IsNullOrWhiteSpace($Version)) {
+            choco install $Package -y --source=$script:chocoRepo --ignore-checksums
+        } else {
+            choco install $Package -y --source=$script:chocoRepo --version $Version --ignore-checksums
+        }
+
+        $exitCode = $LASTEXITCODE
+        $validExitCodes = @(0, 1605, 1614, 1641, 3010)
+        if ($validExitCodes -notcontains $exitCode) {
+            throw "Exit code $exitCode"
+        }
+    }
+
+    if (-not $installSucceeded) {
+        Add-FailedInstallation -Package $Package -Reason "Chocolatey install failed"
+        return $false
+    }
+
+    return $true
 }
 
 function Install-Optional-Feature {
-  param(
-      [Parameter(Mandatory=$true)][string]$feature
-  )
-  Write-Output "Starting install of feature $feature at $(Get-Date -Format "MM/dd/yyyy HH:mm")"
-  try {
-      choco install $feature --source windowsfeatures
-  } catch {
-      Write-Output ("Failed to install feature: {0} - {1}" -f $feature, $_.Exception.Message)
-      $script:failedInstallations += [PSCustomObject]@{
-          Package = "Feature: $feature"
-          Reason = $_.Exception.Message
-      }
-  }
+    param(
+        [Parameter(Mandatory=$true)][string]$Feature
+    )
+
+    Write-Output "Starting install of feature $Feature at $(Get-Date -Format 'MM/dd/yyyy HH:mm')"
+    $featureSucceeded = Invoke-WithRetry -Description "Install optional feature $Feature" -Action {
+        choco install $Feature --source windowsfeatures -y
+    }
+
+    if (-not $featureSucceeded) {
+        Add-FailedInstallation -Package "Feature: $Feature" -Reason "Feature install failed"
+        return $false
+    }
+
+    return $true
 }
 
 function Install-PIP {
-  Write-Output "Starting install of Python packages from requirements.txt at $(Get-Date -Format "MM/dd/yyyy HH:mm")"
-  if (Test-Path "requirements.txt" -PathType Leaf) {
-    if (Get-Command pip -ErrorAction SilentlyContinue) {
-      try {
-          pip install -r requirements.txt
-      } catch {
-          Write-Output ("Failed to install Python packages: {0}" -f $_.Exception.Message)
-          $script:failedInstallations += [PSCustomObject]@{
-              Package = "Python packages"
-              Reason = $_.Exception.Message
-          }
-      }
-    } else {
-      Write-Output "pip command not found, skipping Python package installation"
-      $script:failedInstallations += [PSCustomObject]@{
-          Package = "Python packages"
-          Reason = "pip command not found"
-      }
+    if (-not (Test-Path "requirements.txt" -PathType Leaf)) {
+        Write-Output "requirements.txt not found, skipping Python package installation"
+        return $true
     }
-  } else {
-    Write-Output "requirements.txt not found, skipping Python package installation"
-    $script:failedInstallations += [PSCustomObject]@{
-        Package = "Python packages"
-        Reason = "requirements.txt not found"
+
+    if (-not (Get-Command pip -ErrorAction SilentlyContinue)) {
+        Add-FailedInstallation -Package "Python packages" -Reason "pip command not found"
+        return $false
     }
-  }
+
+    $pipSucceeded = Invoke-WithRetry -Description "Install Python requirements" -Action {
+        pip install -r requirements.txt
+    }
+
+    if (-not $pipSucceeded) {
+        Add-FailedInstallation -Package "Python packages" -Reason "pip install failed"
+        return $false
+    }
+
+    return $true
 }
 
 function Install-Gemfile {
-  Write-Output "Starting install of Ruby gems from Gemfile at $(Get-Date -Format "MM/dd/yyyy HH:mm")"
-  if (Test-Path "Gemfile" -PathType Leaf) {
-    if (Get-Command bundle -ErrorAction SilentlyContinue) {
-      try {
-          bundle install
-      } catch {
-          Write-Output ("Failed to install Ruby gems: {0}" -f $_.Exception.Message)
-          $script:failedInstallations += [PSCustomObject]@{
-              Package = "Ruby gems"
-              Reason = $_.Exception.Message
-          }
-      }
-    } else {
-      Write-Output "bundle command not found, skipping Ruby gems installation"
-      $script:failedInstallations += [PSCustomObject]@{
-          Package = "Ruby gems"
-          Reason = "bundle command not found"
-      }
+    if (-not (Test-Path "Gemfile" -PathType Leaf)) {
+        Write-Output "Gemfile not found, skipping Ruby gems installation"
+        return $true
     }
-  } else {
-    Write-Output "Gemfile not found, skipping Ruby gems installation"
-    $script:failedInstallations += [PSCustomObject]@{
-        Package = "Ruby gems"
-        Reason = "Gemfile not found"
+
+    if (-not (Get-Command bundle -ErrorAction SilentlyContinue)) {
+        Add-FailedInstallation -Package "Ruby gems" -Reason "bundle command not found"
+        return $false
     }
-  }
+
+    $bundleSucceeded = Invoke-WithRetry -Description "Install Ruby gems" -Action {
+        bundle install
+    }
+
+    if (-not $bundleSucceeded) {
+        Add-FailedInstallation -Package "Ruby gems" -Reason "bundle install failed"
+        return $false
+    }
+
+    return $true
 }
 
-function EnableHyperV {
-  Write-Output "Enabling Hyper-V..."
-  try {
-      Install-Optional-Feature "Microsoft-Hyper-V"
-  } catch {
-      # Use format operator for error messages
-      Write-Output ("Failed to enable Hyper-V: {0}" -f $_.Exception.Message)
-      $script:failedInstallations += [PSCustomObject]@{
-          Package = "Hyper-V"
-          Reason = $_.Exception.Message
-      }
-  }
+function Enable-HyperV {
+    return (Install-Optional-Feature -Feature "Microsoft-Hyper-V")
 }
 
 function Install-Windows-Update {
-  try {
-      $service = Get-Service -Name wuauserv -ErrorAction SilentlyContinue
-      if($null -eq $service) {
-        Write-Output "Windows Update Service Does Not Exist."
-        $script:failedInstallations += [PSCustomObject]@{
-            Package = "Windows Updates"
-            Reason = "Windows Update Service does not exist"
+    $updateSucceeded = Invoke-WithRetry -Description "Install Windows updates" -Action {
+        $service = Get-Service -Name wuauserv -ErrorAction SilentlyContinue
+        if ($null -eq $service) {
+            throw "Windows Update service does not exist"
         }
-        return
-      }
 
-      if($service.Status -eq "Disabled") {
-        Write-Output "Attempting to enable $($service.name)"
-        Set-Service -Name $service.name -StartupType Automatic -Force
-      }
-      if($service.Status -eq "Stopped") {
-        Write-Output "Attempting to start $($service.Name)"
-        Start-Service -Name $service.Name
-      }
+        if ($service.StartType -eq "Disabled") {
+            Set-Service -Name $service.Name -StartupType Automatic -Force
+        }
 
-      Install-Module PSWindowsUpdate -Force
-      Get-WindowsUpdate -AcceptAll
-      Install-WindowsUpdate -MicrosoftUpdate -IgnoreReboot -AcceptAll
-  } catch {
-      Write-Output ("Failed to install Windows updates: {0}" -f $_.Exception.Message)
-      $script:failedInstallations += [PSCustomObject]@{
-          Package = "Windows Updates"
-          Reason = $_.Exception.Message
-      }
-  }
+        if ($service.Status -eq "Stopped") {
+            Start-Service -Name $service.Name
+        }
+
+        Install-Module PSWindowsUpdate -Force
+        Get-WindowsUpdate -AcceptAll
+        Install-WindowsUpdate -MicrosoftUpdate -IgnoreReboot -AcceptAll
+    }
+
+    if (-not $updateSucceeded) {
+        Add-FailedInstallation -Package "Windows Updates" -Reason "Windows update stage failed"
+        return $false
+    }
+
+    return $true
 }
 
-#endregion Functions
+function Install-Chocolatey {
+    if (Get-Command choco -ErrorAction SilentlyContinue) {
+        Write-Output "Chocolatey is already installed."
+        return $true
+    }
 
-# Install Chocolatey - We will use this for all our installs and upgrades
-Write-Output "Installing Chocolatey package manager..."
-if (-not (Get-Command choco -ErrorAction SilentlyContinue)) {
-    try {
+    $chocoSucceeded = Invoke-WithRetry -Description "Install Chocolatey" -Action {
         Set-ExecutionPolicy Bypass -Scope Process -Force
         [System.Net.ServicePointManager]::SecurityProtocol = [System.Net.ServicePointManager]::SecurityProtocol -bor 3072
         Invoke-Expression ((New-Object System.Net.WebClient).DownloadString('https://chocolatey.org/install.ps1'))
-    } catch {
-        Write-Output ("Failed to install Chocolatey: {0}" -f $_.Exception.Message)
-        $script:failedInstallations += [PSCustomObject]@{
-            Package = "Chocolatey"
-            Reason = $_.Exception.Message
-        }
     }
-} else {
-    Write-Output "Chocolatey is already installed."
+
+    if (-not $chocoSucceeded) {
+        Add-FailedInstallation -Package "Chocolatey" -Reason "Chocolatey install failed"
+        return $false
+    }
+
+    return $true
 }
 
-# Create workspace directory
-Write-Output "Creating workspace directory..."
-if (-not (Test-Path "c:\workspace")) {
-    try {
+function Ensure-Workspace {
+    if (Test-Path "c:\workspace") {
+        return $true
+    }
+
+    $workspaceSucceeded = Invoke-WithRetry -Description "Create workspace directory" -Action {
         New-Item -Path "c:\" -Name "workspace" -ItemType "Directory" | Out-Null
-    } catch {
-        Write-Output ("Failed to create workspace directory: {0}" -f $_.Exception.Message)
-        $script:failedInstallations += [PSCustomObject]@{
-            Package = "Workspace directory"
-            Reason = $_.Exception.Message
-        }
     }
+
+    if (-not $workspaceSucceeded) {
+        Add-FailedInstallation -Package "Workspace directory" -Reason "Workspace directory creation failed"
+        return $false
+    }
+
+    return $true
 }
 
-# Install Windows features from features.txt
-if (Test-Path "features.txt" -PathType Leaf) {
+function Install-WindowsFeatures {
+    $allSucceeded = $true
     $features = Get-Content features.txt
-    Write-Output "Installing Windows features..."
     foreach ($feature in $features) {
-        Install-Optional-Feature $feature
+        if ([string]::IsNullOrWhiteSpace($feature)) {
+            continue
+        }
+
+        if (-not (Install-Optional-Feature -Feature $feature)) {
+            $allSucceeded = $false
+        }
     }
-} else {
-    Write-Output "features.txt not found, skipping Windows features installation"
-    $script:failedInstallations += [PSCustomObject]@{
-        Package = "Windows Features"
-        Reason = "features.txt not found"
-    }
+
+    return $allSucceeded
 }
 
-# Add Visual Studio and Office based on Windows edition
-Write-Output "Detecting Windows edition: $windowsCaption"
-$vsPackage = "visualstudio2022community"
-$officePackage = ""
+function Set-EditionPackages {
+    $script:windowsCaption = (Get-CimInstance -ClassName Win32_OperatingSystem).Caption
+    Write-Output "Detecting Windows edition: $script:windowsCaption"
 
-switch ($windowsCaption)
-{
-  {$_.Contains("Home")} {
-      $vsPackage = "visualstudio2022community"
-      $officePackage = "office365homepremium"
-      Write-Output "Windows Home edition detected, will install $vsPackage and $officePackage"
-    }
-  {$_.Contains("Business")} {
-      $vsPackage = "visualstudio2022professional"
-      $officePackage = "office365business"
-      Write-Output "Windows Business edition detected, will install $vsPackage and $officePackage"
-      EnableHyperV
-    }
-  {$_.Contains("Enterprise")} {
-      $vsPackage = "visualstudio2022enterprise"
-      $officePackage = "office365business"
-      Write-Output "Windows Enterprise edition detected, will install $vsPackage and $officePackage"
-      EnableHyperV
-    }
-  Default {
-      Write-Output "Could not determine Windows edition, defaulting to Visual Studio Community"
-      $vsPackage = "visualstudio2022community"
-  }
-}
-
-# Install packages from chocolatey.config
-if (Test-Path "chocolatey.config" -PathType Leaf) {
-    Write-Output "Installing packages from chocolatey.config..."
-    try {
-        # First verify that the XML is valid
-        try {
-            [xml]$xmlContent = Get-Content -Path "chocolatey.config" -Raw
-            Write-Output "XML file validated successfully"
-        } catch {
-            Write-Output "Error in chocolatey.config XML format:"
-            Write-Output $_.Exception.Message
-            $script:failedInstallations += [PSCustomObject]@{
-                Package = "Chocolatey Config Validation"
-                Reason = $_.Exception.Message
-            }
-            throw "Invalid XML in chocolatey.config. Please fix before continuing."
+    switch ($script:windowsCaption) {
+        { $_.Contains("Home") } {
+            $script:vsPackage = "visualstudio2022community"
+            $script:officePackage = "office365homepremium"
         }
-
-        # Then try to install
-        choco install chocolatey.config --source=$chocorepo --ignore-checksums
-    } catch {
-        Write-Output ("Failed to install packages from chocolatey.config: {0}" -f $_.Exception.Message)
-        $script:failedInstallations += [PSCustomObject]@{
-            Package = "Chocolatey packages (config)"
-            Reason = $_.Exception.Message
+        { $_.Contains("Business") } {
+            $script:vsPackage = "visualstudio2022professional"
+            $script:officePackage = "office365business"
+            Enable-HyperV | Out-Null
         }
-    }
-} else {
-    Write-Output "chocolatey.config not found, trying fallback to chocolatey.txt"
-    if (Test-Path "chocolatey.txt" -PathType Leaf) {
-        $chocolateypackages = Get-Content chocolatey.txt
-        foreach ($package in $chocolateypackages) {
-            Install-With-Choco -package $package
+        { $_.Contains("Enterprise") } {
+            $script:vsPackage = "visualstudio2022enterprise"
+            $script:officePackage = "office365business"
+            Enable-HyperV | Out-Null
         }
-    } else {
-        Write-Output "Neither chocolatey.config nor chocolatey.txt found, skipping package installation"
-        $script:failedInstallations += [PSCustomObject]@{
-            Package = "Chocolatey packages"
-            Reason = "Neither chocolatey.config nor chocolatey.txt found"
+        Default {
+            $script:vsPackage = "visualstudio2022community"
+            $script:officePackage = ""
         }
     }
 }
 
-# Install Visual Studio and Office separately
-if ($vsPackage -ne "") {
-    Write-Output "Installing $vsPackage..."
-    Install-With-Choco -package $vsPackage
+function Install-ChocolateyConfigPackages {
+    [xml]$xmlContent = Get-Content -Path "chocolatey.config" -Raw
+    if ($null -eq $xmlContent.packages -or $null -eq $xmlContent.packages.package) {
+        throw "No package nodes were found in chocolatey.config"
+    }
+
+    $configSucceeded = Invoke-WithRetry -Description "Install chocolatey.config" -Action {
+        choco install chocolatey.config --source=$script:chocoRepo --ignore-checksums -y
+    }
+
+    if (-not $configSucceeded) {
+        Add-FailedInstallation -Package "Chocolatey packages (config)" -Reason "Config package install failed"
+        return $false
+    }
+
+    return $true
 }
 
-if ($officePackage -ne "") {
-    Write-Output "Installing $officePackage..."
-    Install-With-Choco -package $officePackage
+function Install-EditionPackages {
+    $allSucceeded = $true
+
+    if (-not [string]::IsNullOrWhiteSpace($script:vsPackage)) {
+        if (-not (Install-With-Choco -Package $script:vsPackage)) {
+            $allSucceeded = $false
+        }
+    }
+
+    if (-not [string]::IsNullOrWhiteSpace($script:officePackage)) {
+        if (-not (Install-With-Choco -Package $script:officePackage)) {
+            $allSucceeded = $false
+        }
+    }
+
+    return $allSucceeded
 }
 
-# Install Python packages and Ruby Gems
-Install-PIP
-Install-Gemfile
+function Show-SetupSummary {
+    Write-Output "`nInstallation Summary"
+    Write-Output "===================="
 
-# Run Windows Updates if enabled
-if($true -eq $windowsUpdate) {
-    Install-Windows-Update
-}
+    Write-Output "`nOperation State Summary"
+    Write-Output "-----------------------"
+    foreach ($operation in $script:operationStates) {
+        if ([string]::IsNullOrWhiteSpace($operation.Message)) {
+            Write-Output ("{0} [{1}]" -f $operation.Operation, $operation.State)
+        } else {
+            Write-Output ("{0} [{1}] - {2}" -f $operation.Operation, $operation.State, $operation.Message)
+        }
+    }
 
-# Display summary of installations
-Write-Output "`nInstallation Summary"
-Write-Output "===================="
+    if ($script:failedInstallations.Count -gt 0) {
+        Write-Output "`nFailed Installations:"
+        Write-Output "---------------------"
+        $script:failedInstallations | Format-Table -Property @{Label="Package"; Expression={$_.Package}}, @{Label="Reason"; Expression={$_.Reason}} -AutoSize -Wrap
+        Write-Output "`nSetup completed with some failures."
+        return $false
+    }
 
-if ($failedInstallations.Count -gt 0) {
-    Write-Output "`nFailed Installations:"
-    Write-Output "---------------------"
-    $failedInstallations | Format-Table -Property @{Label="Package"; Expression={$_.Package}}, @{Label="Reason"; Expression={$_.Reason}} -AutoSize -Wrap
-
-    Write-Output "`nSetup completed with some failures. Please check the errors above."
-} else {
     Write-Output "`nAll applications were installed successfully!"
+    return $true
 }
 
-Write-Output "`nSetup completed!"
-Stop-Transcript # Might not happen with reboot
+$transcriptStarted = $false
+
+try {
+    if (-not $ValidateOnly) {
+        $username = Get-Content env:username
+        $computer = Get-Content env:computername
+        $logFile = "C:\$computer-$username-$(Get-Date -Format 'MM-dd-yyyy-HH-mm')-install.log"
+        Start-Transcript -Path $logFile -Append
+        $transcriptStarted = $true
+
+        New-ItemProperty -Path "HKLM:\SYSTEM\CurrentControlSet\Control\FileSystem" -Name "LongPathsEnabled" -Value 1 -PropertyType DWORD -Force | Out-Null
+    }
+
+    Run-Stage -StageName "preflight-validation" -Action {
+        if (-not (Test-SetupPrerequisites)) {
+            throw "Preflight validation failed"
+        }
+    } | Out-Null
+
+    if ($ValidateOnly) {
+        if (-not (Show-SetupSummary)) {
+            exit 1
+        }
+        exit 0
+    }
+
+    Run-Stage -StageName "bootstrap" -Action {
+        if (-not (Install-Chocolatey)) { throw "Chocolatey bootstrap failed" }
+        if (-not (Ensure-Workspace)) { throw "Workspace setup failed" }
+    } | Out-Null
+
+    Run-Stage -StageName "feature-installation" -Action {
+        if (-not (Install-WindowsFeatures)) { throw "One or more Windows features failed" }
+    } | Out-Null
+
+    Run-Stage -StageName "package-installation" -Action {
+        if (-not (Install-ChocolateyConfigPackages)) { throw "Chocolatey config package installation failed" }
+    } | Out-Null
+
+    Run-Stage -StageName "edition-packages" -Action {
+        Set-EditionPackages
+        if (-not (Install-EditionPackages)) { throw "Edition-specific package installation failed" }
+    } | Out-Null
+
+    Run-Stage -StageName "language-dependencies" -Action {
+        if (-not (Install-PIP)) { throw "Python dependency installation failed" }
+        if (-not (Install-Gemfile)) { throw "Ruby dependency installation failed" }
+    } | Out-Null
+
+    Run-Stage -StageName "post-checks" -Action {
+        if ($script:windowsUpdate -and -not (Install-Windows-Update)) {
+            throw "Windows update stage failed"
+        }
+    } | Out-Null
+
+    if (-not (Show-SetupSummary)) {
+        exit 1
+    }
+
+    Write-Output "`nSetup completed!"
+} finally {
+    if ($transcriptStarted) {
+        Stop-Transcript | Out-Null
+    }
+}

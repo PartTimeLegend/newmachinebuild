@@ -33,22 +33,56 @@ on:
     - cron:  '0 0 * * *'
   workflow_dispatch:
 
-  
 jobs:
-  bash:
-    name: Bash
-    strategy:
-      matrix:
-        os: [macos-latest]
-      fail-fast: false
-    runs-on: ${{ matrix.os }}
+  shell-lint:
+    name: Shell lint
+    runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
-    - name: Run script
-      run: ./NewMachineSetup.sh
-      shell: bash
+    - name: Install shellcheck
+      run: sudo apt-get update && sudo apt-get install -y shellcheck
+    - name: Shellcheck scripts
+      run: shellcheck NewMachineSetup.sh unbrew.sh
+
+  powershell-static:
+    name: PowerShell static analysis
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+    - name: Parse script syntax
+      shell: pwsh
+      run: |
+        $errors = $null
+        [System.Management.Automation.Language.Parser]::ParseFile('./NewMachineSetup.ps1', [ref]$null, [ref]$errors) | Out-Null
+        if ($errors.Count -gt 0) {
+          $errors | ForEach-Object { Write-Error $_ }
+          exit 1
+        }
+    - name: Run script analyzer
+      shell: pwsh
+      run: |
+        Set-PSRepository PSGallery -InstallationPolicy Trusted
+        Install-Module PSScriptAnalyzer -Scope CurrentUser -Force
+        Invoke-ScriptAnalyzer -Path ./NewMachineSetup.ps1 -Severity Warning -EnableExit
+
+  smoke-tests:
+    name: Script smoke tests
+    runs-on: ubuntu-latest
+    needs: [shell-lint, powershell-static]
+    steps:
+    - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+    - name: Bash validate-only smoke test
+      run: |
+        chmod +x ./NewMachineSetup.sh
+        ./NewMachineSetup.sh --validate-only
+    - name: PowerShell validate-only smoke test
+      shell: pwsh
+      run: ./NewMachineSetup.ps1 -ValidateOnly -SkipElevation
+
   tag:
     name: Tag Release
+    if: github.event_name == 'push' && github.ref == 'refs/heads/master'
+    needs: [shell-lint, powershell-static, smoke-tests]
     runs-on: ubuntu-latest
     permissions:
       contents: write
