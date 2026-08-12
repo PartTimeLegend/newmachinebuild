@@ -138,7 +138,7 @@ configure_homebrew_linux() {
   if ! grep -q 'brew shellenv' /home/runner/.bash_profile 2>/dev/null; then
     {
       echo '# Set PATH, MANPATH, etc., for Homebrew.'
-      echo 'eval "$(/home/linuxbrew/.linuxbrew/bin/brew shellenv)"'
+      echo "eval \"\$(/home/linuxbrew/.linuxbrew/bin/brew shellenv)\""
     } >> /home/runner/.bash_profile
   fi
 
