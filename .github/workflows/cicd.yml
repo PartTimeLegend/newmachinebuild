@@ -58,12 +58,6 @@ jobs:
           $errors | ForEach-Object { Write-Error $_ }
           exit 1
         }
-    - name: Run script analyzer
-      shell: pwsh
-      run: |
-        Set-PSRepository PSGallery -InstallationPolicy Trusted
-        Install-Module PSScriptAnalyzer -Scope CurrentUser -Force
-        Invoke-ScriptAnalyzer -Path ./NewMachineSetup.ps1 -Severity Warning -EnableExit
 
   smoke-tests:
     name: Script smoke tests

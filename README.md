@@ -44,6 +44,12 @@ Validation-only smoke mode:
 .\NewMachineSetup.ps1 -ValidateOnly -SkipElevation
 ```
 
+Optional Windows Update stage:
+
+```powershell
+.\NewMachineSetup.ps1 -WindowsUpdate
+```
+
 This will:
 
 1. Install Chocolatey if not already installed

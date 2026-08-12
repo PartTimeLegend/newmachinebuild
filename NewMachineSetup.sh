@@ -116,12 +116,16 @@ install_homebrew() {
   fi
 
   echo "Installing Homebrew..."
-  if ! invoke_with_retry "Install Homebrew" /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"; then
+  if ! invoke_with_retry "Install Homebrew" run_homebrew_installer; then
     record_failure "Homebrew" "installation_failed"
     return 1
   fi
 
   return 0
+}
+
+run_homebrew_installer() {
+  /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
 }
 
 configure_homebrew_linux() {

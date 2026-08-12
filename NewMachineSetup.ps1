@@ -2,6 +2,7 @@ param(
     [switch]$ValidateOnly,
     [switch]$SkipElevation,
     [switch]$DryRun,
+    [switch]$WindowsUpdate,
     [int]$MaxRetries = 2
 )
 
@@ -19,7 +20,7 @@ if (-not $ValidateOnly -and -not $SkipElevation) {
 }
 
 $script:chocoRepo = "https://chocolatey.org/api/v2//"
-$script:windowsUpdate = $false
+$script:windowsUpdate = $WindowsUpdate.IsPresent
 $script:failedInstallations = @()
 $script:operationStates = @()
 $script:vsPackage = "visualstudio2022community"
@@ -83,7 +84,7 @@ function Invoke-WithRetry {
     return $false
 }
 
-function Run-Stage {
+function Invoke-Stage {
     param(
         [Parameter(Mandatory=$true)][string]$StageName,
         [Parameter(Mandatory=$true)][ScriptBlock]$Action
@@ -272,7 +273,7 @@ function Install-Chocolatey {
     return $true
 }
 
-function Ensure-Workspace {
+function Initialize-Workspace {
     if (Test-Path "c:\workspace") {
         return $true
     }
@@ -406,7 +407,7 @@ try {
         New-ItemProperty -Path "HKLM:\SYSTEM\CurrentControlSet\Control\FileSystem" -Name "LongPathsEnabled" -Value 1 -PropertyType DWORD -Force | Out-Null
     }
 
-    Run-Stage -StageName "preflight-validation" -Action {
+    Invoke-Stage -StageName "preflight-validation" -Action {
         if (-not (Test-SetupPrerequisites)) {
             throw "Preflight validation failed"
         }
@@ -419,30 +420,30 @@ try {
         exit 0
     }
 
-    Run-Stage -StageName "bootstrap" -Action {
+    Invoke-Stage -StageName "bootstrap" -Action {
         if (-not (Install-Chocolatey)) { throw "Chocolatey bootstrap failed" }
-        if (-not (Ensure-Workspace)) { throw "Workspace setup failed" }
+        if (-not (Initialize-Workspace)) { throw "Workspace setup failed" }
     } | Out-Null
 
-    Run-Stage -StageName "feature-installation" -Action {
+    Invoke-Stage -StageName "feature-installation" -Action {
         if (-not (Install-WindowsFeatures)) { throw "One or more Windows features failed" }
     } | Out-Null
 
-    Run-Stage -StageName "package-installation" -Action {
+    Invoke-Stage -StageName "package-installation" -Action {
         if (-not (Install-ChocolateyConfigPackages)) { throw "Chocolatey config package installation failed" }
     } | Out-Null
 
-    Run-Stage -StageName "edition-packages" -Action {
+    Invoke-Stage -StageName "edition-packages" -Action {
         Set-EditionPackages
         if (-not (Install-EditionPackages)) { throw "Edition-specific package installation failed" }
     } | Out-Null
 
-    Run-Stage -StageName "language-dependencies" -Action {
+    Invoke-Stage -StageName "language-dependencies" -Action {
         if (-not (Install-PIP)) { throw "Python dependency installation failed" }
         if (-not (Install-Gemfile)) { throw "Ruby dependency installation failed" }
     } | Out-Null
 
-    Run-Stage -StageName "post-checks" -Action {
+    Invoke-Stage -StageName "post-checks" -Action {
         if ($script:windowsUpdate -and -not (Install-Windows-Update)) {
             throw "Windows update stage failed"
         }
