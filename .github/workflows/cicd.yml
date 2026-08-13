@@ -96,7 +96,7 @@ jobs:
 
   bash-validate-only:
     name: Bash validate-only benchmark (${{ matrix.os }})
-    if: github.event_name == 'workflow_dispatch' || github.event_name == 'schedule'
+    if: github.event_name == 'workflow_dispatch' || github.event_name == 'schedule' || github.event_name == 'pull_request'
     runs-on: ${{ matrix.os }}
     needs: [bash-qualification]
     strategy:
@@ -115,7 +115,7 @@ jobs:
 
   powershell-validate-only:
     name: PowerShell validate-only benchmark
-    if: github.event_name == 'workflow_dispatch' || github.event_name == 'schedule'
+    if: github.event_name == 'workflow_dispatch' || github.event_name == 'schedule' || github.event_name == 'pull_request'
     runs-on: windows-latest
     needs: [powershell-qualification]
     steps:
