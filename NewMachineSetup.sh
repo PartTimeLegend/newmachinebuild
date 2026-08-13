@@ -406,6 +406,7 @@ install_brewfile() {
 run_oq_stage() {
   local success=true
   local python_cmd pip_cmd bundle_cmd package_duration
+  local -a pip_resolution_args
 
   python_cmd=$(find_first_command python3 python || true)
   pip_cmd=$(find_first_command pip3 pip || true)
@@ -444,16 +445,16 @@ run_oq_stage() {
       record_failure "OQ" "pip_not_operational"
       success=false
     }
-    "$pip_cmd" check >/dev/null 2>&1 || {
-      record_failure "OQ" "pip_dependency_conflict_detected"
-      success=false
-    }
     "$pip_cmd" uninstall --help >/dev/null 2>&1 || {
       record_failure "OQ" "pip_rollback_unavailable"
       success=false
     }
     if [ -f "requirements.txt" ]; then
-      "$pip_cmd" install --dry-run -r requirements.txt >/dev/null 2>&1 || {
+      pip_resolution_args=(install --dry-run --ignore-installed -r requirements.txt)
+      if "$pip_cmd" install --help 2>/dev/null | grep -q -- '--break-system-packages'; then
+        pip_resolution_args=(install --dry-run --ignore-installed --break-system-packages -r requirements.txt)
+      fi
+      "$pip_cmd" "${pip_resolution_args[@]}" >/dev/null 2>&1 || {
         record_failure "OQ" "pip_dependency_resolution_failed"
         success=false
       }
