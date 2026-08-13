@@ -1,5 +1,8 @@
 param(
     [switch]$ValidateOnly,
+    [switch]$IQOnly,
+    [switch]$OQOnly,
+    [switch]$PQOnly,
     [switch]$SkipElevation,
     [switch]$DryRun,
     [switch]$WindowsUpdate,
@@ -7,19 +10,65 @@ param(
 )
 
 $ErrorActionPreference = "Stop"
+$script:QualificationOnlyMode = $ValidateOnly.IsPresent -or $IQOnly.IsPresent -or $OQOnly.IsPresent -or $PQOnly.IsPresent
+$script:minRamMB = 4096
+$script:minDiskMB = 10240
+$script:minAvailableMemoryMB = 512
+$script:packageManagerThresholdSeconds = 5.0
+$script:networkThresholdSeconds = 5
+$script:diskWriteMbpsMin = 5.0
 
-if (-not $ValidateOnly) {
+function Get-EnvIntValue {
+    param(
+        [Parameter(Mandatory=$true)][string]$Name,
+        [Parameter(Mandatory=$true)][int]$DefaultValue
+    )
+
+    $value = (Get-Item -Path "Env:$Name" -ErrorAction SilentlyContinue).Value
+    if ([string]::IsNullOrWhiteSpace($value)) {
+        return $DefaultValue
+    }
+
+    return [int]$value
+}
+
+function Get-EnvDoubleValue {
+    param(
+        [Parameter(Mandatory=$true)][string]$Name,
+        [Parameter(Mandatory=$true)][double]$DefaultValue
+    )
+
+    $value = (Get-Item -Path "Env:$Name" -ErrorAction SilentlyContinue).Value
+    if ([string]::IsNullOrWhiteSpace($value)) {
+        return $DefaultValue
+    }
+
+    return [double]$value
+}
+
+$script:minRamMB = Get-EnvIntValue -Name "NMB_MIN_RAM_MB" -DefaultValue $script:minRamMB
+$script:minDiskMB = Get-EnvIntValue -Name "NMB_MIN_DISK_MB" -DefaultValue $script:minDiskMB
+$script:minAvailableMemoryMB = Get-EnvIntValue -Name "NMB_MIN_AVAILABLE_MEMORY_MB" -DefaultValue $script:minAvailableMemoryMB
+$script:networkThresholdSeconds = Get-EnvIntValue -Name "NMB_NETWORK_THRESHOLD_SECONDS" -DefaultValue $script:networkThresholdSeconds
+$script:packageManagerThresholdSeconds = Get-EnvDoubleValue -Name "NMB_PACKAGE_MANAGER_THRESHOLD_SECONDS" -DefaultValue $script:packageManagerThresholdSeconds
+$script:diskWriteMbpsMin = Get-EnvDoubleValue -Name "NMB_DISK_WRITE_MBPS_MIN" -DefaultValue $script:diskWriteMbpsMin
+
+if (-not $script:QualificationOnlyMode) {
     Clear-Host
 }
 
-if (-not $ValidateOnly -and -not $SkipElevation) {
+if (-not $script:QualificationOnlyMode -and -not $SkipElevation) {
     if (!([Security.Principal.WindowsPrincipal][Security.Principal.WindowsIdentity]::GetCurrent()).IsInRole([Security.Principal.WindowsBuiltInRole] "Administrator")) {
-        Start-Process powershell.exe "-NoProfile -ExecutionPolicy Bypass -File `"$PSCommandPath`"" -Verb RunAs
+        $argumentList = @("-NoProfile", "-ExecutionPolicy", "Bypass", "-File", $PSCommandPath)
+        if ($DryRun) { $argumentList += "-DryRun" }
+        if ($WindowsUpdate) { $argumentList += "-WindowsUpdate" }
+        $argumentList += @("-MaxRetries", $MaxRetries)
+        Start-Process powershell.exe -ArgumentList $argumentList -Verb RunAs
         exit
     }
 }
 
-$script:chocoRepo = "https://chocolatey.org/api/v2//"
+$script:chocoRepo = "https://community.chocolatey.org/api/v2/"
 $script:windowsUpdate = $WindowsUpdate.IsPresent
 $script:failedInstallations = @()
 $script:operationStates = @()
@@ -52,6 +101,17 @@ function Set-OperationState {
         Message = $Message
         Timestamp = (Get-Date)
     }
+}
+
+function Get-CommandIfAvailable {
+    param([Parameter(Mandatory=$true)][string]$Name)
+
+    $command = Get-Command $Name -ErrorAction SilentlyContinue
+    if ($null -eq $command) {
+        return $null
+    }
+
+    return $command
 }
 
 function Invoke-WithRetry {
@@ -90,11 +150,17 @@ function Invoke-Stage {
         [Parameter(Mandatory=$true)][ScriptBlock]$Action
     )
 
+    $failureCount = $script:failedInstallations.Count
     Set-OperationState -Operation $StageName -State "planned"
     Set-OperationState -Operation $StageName -State "running"
 
     try {
-        & $Action
+        $result = & $Action
+        if ($false -eq $result -or $script:failedInstallations.Count -gt $failureCount) {
+            Set-OperationState -Operation $StageName -State "failed"
+            return $false
+        }
+
         Set-OperationState -Operation $StageName -State "succeeded"
         return $true
     } catch {
@@ -102,6 +168,50 @@ function Invoke-Stage {
         Add-FailedInstallation -Package $StageName -Reason $_.Exception.Message
         return $false
     }
+}
+
+function Test-Connectivity {
+    param([Parameter(Mandatory=$true)][string]$Uri)
+
+    try {
+        Invoke-WebRequest -Method Head -Uri $Uri -TimeoutSec $script:networkThresholdSeconds | Out-Null
+        return $true
+    } catch {
+        return $false
+    }
+}
+
+function Measure-CommandSeconds {
+    param(
+        [Parameter(Mandatory=$true)][string]$CommandName,
+        [string[]]$Arguments = @()
+    )
+
+    $LASTEXITCODE = 0
+    $stopwatch = [System.Diagnostics.Stopwatch]::StartNew()
+    try {
+        & $CommandName @Arguments | Out-Null
+        if ($LASTEXITCODE -ne 0) {
+            throw "$CommandName exited with code $LASTEXITCODE"
+        }
+    } finally {
+        $stopwatch.Stop()
+    }
+
+    return [Math]::Round($stopwatch.Elapsed.TotalSeconds, 2)
+}
+
+function Measure-UrlSeconds {
+    param([Parameter(Mandatory=$true)][string]$Uri)
+
+    $stopwatch = [System.Diagnostics.Stopwatch]::StartNew()
+    try {
+        Invoke-WebRequest -Method Head -Uri $Uri -TimeoutSec $script:networkThresholdSeconds | Out-Null
+    } finally {
+        $stopwatch.Stop()
+    }
+
+    return [Math]::Round($stopwatch.Elapsed.TotalSeconds, 2)
 }
 
 function Test-SetupPrerequisites {
@@ -124,7 +234,88 @@ function Test-SetupPrerequisites {
         }
     }
 
+    try {
+        $os = Get-CimInstance -ClassName Win32_OperatingSystem
+        if (-not $os.Caption.Contains("Windows")) {
+            Add-FailedInstallation -Package "preflight-validation" -Reason "unsupported operating system"
+            $valid = $false
+        }
+    } catch {
+        Add-FailedInstallation -Package "preflight-validation" -Reason "unable to determine operating system"
+        $valid = $false
+    }
+
+    try {
+        $system = Get-CimInstance -ClassName Win32_ComputerSystem
+        $ramMB = [int]($system.TotalPhysicalMemory / 1MB)
+        if ($ramMB -lt $script:minRamMB) {
+            Add-FailedInstallation -Package "preflight-validation" -Reason "insufficient RAM ${ramMB}MB"
+            $valid = $false
+        }
+    } catch {
+        Add-FailedInstallation -Package "preflight-validation" -Reason "unable to determine RAM"
+        $valid = $false
+    }
+
+    try {
+        $drive = Get-PSDrive -Name C
+        $diskMB = [int]($drive.Free / 1MB)
+        if ($diskMB -lt $script:minDiskMB) {
+            Add-FailedInstallation -Package "preflight-validation" -Reason "insufficient disk ${diskMB}MB"
+            $valid = $false
+        }
+    } catch {
+        Add-FailedInstallation -Package "preflight-validation" -Reason "unable to determine free disk"
+        $valid = $false
+    }
+
+    foreach ($endpoint in @($script:chocoRepo, "https://pypi.org/simple/", "https://rubygems.org")) {
+        if (-not (Test-Connectivity -Uri $endpoint)) {
+            $sanitized = $endpoint -replace "https?://", "" -replace "[^A-Za-z0-9]", "_"
+            Add-FailedInstallation -Package "preflight-validation" -Reason "network unreachable $sanitized"
+            $valid = $false
+        }
+    }
+
     return $valid
+}
+
+function Invoke-IQStage {
+    $success = $true
+    $choco = Get-CommandIfAvailable -Name "choco"
+
+    if ($null -ne $choco) {
+        try {
+            Get-FileHash -Path $choco.Source -Algorithm SHA256 | Out-Null
+        } catch {
+            Add-FailedInstallation -Package "IQ" -Reason "chocolatey checksum failed"
+            $success = $false
+        }
+    } elseif ($script:QualificationOnlyMode) {
+        Add-FailedInstallation -Package "IQ" -Reason "Chocolatey not installed"
+        $success = $false
+    } else {
+        Write-Output "Chocolatey is not installed yet; bootstrap will install it."
+    }
+
+    foreach ($tool in @("git", "python", "pip", "bundle")) {
+        $command = Get-CommandIfAvailable -Name $tool
+        if ($null -ne $command) {
+            try {
+                Get-FileHash -Path $command.Source -Algorithm SHA256 | Out-Null
+            } catch {
+                Add-FailedInstallation -Package "IQ" -Reason "$tool checksum failed"
+                $success = $false
+            }
+        } elseif ($script:QualificationOnlyMode) {
+            Add-FailedInstallation -Package "IQ" -Reason "$tool not installed"
+            $success = $false
+        } else {
+            Write-Output "$tool is not installed yet; later stages may provision it."
+        }
+    }
+
+    return $success
 }
 
 function Install-With-Choco {
@@ -158,9 +349,7 @@ function Install-With-Choco {
 }
 
 function Install-Optional-Feature {
-    param(
-        [Parameter(Mandatory=$true)][string]$Feature
-    )
+    param([Parameter(Mandatory=$true)][string]$Feature)
 
     Write-Output "Starting install of feature $Feature at $(Get-Date -Format 'MM/dd/yyyy HH:mm')"
     $featureSucceeded = Invoke-WithRetry -Description "Install optional feature $Feature" -Action {
@@ -234,13 +423,14 @@ function Install-Windows-Update {
 
         if ($service.StartType -eq "Disabled") {
             Set-Service -Name $service.Name -StartupType Automatic -Force
+            $service = Get-Service -Name $service.Name
         }
 
         if ($service.Status -eq "Stopped") {
             Start-Service -Name $service.Name
         }
 
-        Install-Module PSWindowsUpdate -Force
+        Install-Module PSWindowsUpdate -Force -Confirm:$false -Scope CurrentUser
         Get-WindowsUpdate -AcceptAll
         Install-WindowsUpdate -MicrosoftUpdate -IgnoreReboot -AcceptAll
     }
@@ -262,7 +452,7 @@ function Install-Chocolatey {
     $chocoSucceeded = Invoke-WithRetry -Description "Install Chocolatey" -Action {
         Set-ExecutionPolicy Bypass -Scope Process -Force
         [System.Net.ServicePointManager]::SecurityProtocol = [System.Net.ServicePointManager]::SecurityProtocol -bor 3072
-        Invoke-Expression ((New-Object System.Net.WebClient).DownloadString('https://chocolatey.org/install.ps1'))
+        Invoke-Expression ((New-Object System.Net.WebClient).DownloadString('https://community.chocolatey.org/install.ps1'))
     }
 
     if (-not $chocoSucceeded) {
@@ -368,6 +558,152 @@ function Install-EditionPackages {
     return $allSucceeded
 }
 
+function Invoke-OQStage {
+    $success = $true
+
+    if (Get-Command choco -ErrorAction SilentlyContinue) {
+        try {
+            choco --version | Out-Null
+            choco source list | Out-Null
+            choco uninstall --help | Out-Null
+        } catch {
+            Add-FailedInstallation -Package "OQ" -Reason "Chocolatey is not operational"
+            $success = $false
+        }
+    } else {
+        Add-FailedInstallation -Package "OQ" -Reason "Chocolatey not available"
+        $success = $false
+    }
+
+    if (Get-Command python -ErrorAction SilentlyContinue) {
+        try {
+            python --version | Out-Null
+        } catch {
+            Add-FailedInstallation -Package "OQ" -Reason "Python is not operational"
+            $success = $false
+        }
+    } else {
+        Add-FailedInstallation -Package "OQ" -Reason "Python not available"
+        $success = $false
+    }
+
+    if (Get-Command pip -ErrorAction SilentlyContinue) {
+        try {
+            pip --version | Out-Null
+            pip check | Out-Null
+            pip uninstall --help | Out-Null
+            if (Test-Path "requirements.txt" -PathType Leaf) {
+                pip install --dry-run -r requirements.txt | Out-Null
+            }
+        } catch {
+            Add-FailedInstallation -Package "OQ" -Reason "pip dependency validation failed"
+            $success = $false
+        }
+    } else {
+        Add-FailedInstallation -Package "OQ" -Reason "pip not available"
+        $success = $false
+    }
+
+    if (Get-Command bundle -ErrorAction SilentlyContinue) {
+        try {
+            bundle --version | Out-Null
+            bundle check | Out-Null
+            if (Get-Command gem -ErrorAction SilentlyContinue) {
+                gem uninstall --help | Out-Null
+            }
+        } catch {
+            Add-FailedInstallation -Package "OQ" -Reason "bundle dependency validation failed"
+            $success = $false
+        }
+    } elseif (Test-Path "Gemfile" -PathType Leaf) {
+        Add-FailedInstallation -Package "OQ" -Reason "bundle not available"
+        $success = $false
+    }
+
+    if (-not (Test-Connectivity -Uri $script:chocoRepo)) {
+        Add-FailedInstallation -Package "OQ" -Reason "Chocolatey repository unreachable"
+        $success = $false
+    }
+
+    return $success
+}
+
+function Invoke-PQStage {
+    $success = $true
+
+    if (Get-Command choco -ErrorAction SilentlyContinue) {
+        try {
+            $seconds = Measure-CommandSeconds -CommandName "choco" -Arguments @("--version")
+            if ($seconds -gt $script:packageManagerThresholdSeconds) {
+                Add-FailedInstallation -Package "PQ" -Reason "Chocolatey response too slow ${seconds}s"
+                $success = $false
+            }
+        } catch {
+            Add-FailedInstallation -Package "PQ" -Reason "Chocolatey response measurement failed"
+            $success = $false
+        }
+    } else {
+        Add-FailedInstallation -Package "PQ" -Reason "Chocolatey not available"
+        $success = $false
+    }
+
+    if (Get-Command pip -ErrorAction SilentlyContinue) {
+        try {
+            $seconds = Measure-CommandSeconds -CommandName "pip" -Arguments @("--version")
+            if ($seconds -gt $script:packageManagerThresholdSeconds) {
+                Add-FailedInstallation -Package "PQ" -Reason "pip response too slow ${seconds}s"
+                $success = $false
+            }
+        } catch {
+            Add-FailedInstallation -Package "PQ" -Reason "pip response measurement failed"
+            $success = $false
+        }
+    }
+
+    try {
+        $tempFile = Join-Path $env:TEMP ("newmachinebuild-" + [guid]::NewGuid().ToString() + ".bin")
+        $buffer = New-Object byte[] (8 * 1MB)
+        $stopwatch = [System.Diagnostics.Stopwatch]::StartNew()
+        [System.IO.File]::WriteAllBytes($tempFile, $buffer)
+        $stopwatch.Stop()
+        if ($stopwatch.Elapsed.TotalSeconds -gt 0) {
+            $mbps = [Math]::Round(8 / $stopwatch.Elapsed.TotalSeconds, 2)
+            if ($mbps -lt $script:diskWriteMbpsMin) {
+                Add-FailedInstallation -Package "PQ" -Reason "Disk write below threshold ${mbps}MBps"
+                $success = $false
+            }
+        }
+        Remove-Item $tempFile -ErrorAction SilentlyContinue
+    } catch {
+        Add-FailedInstallation -Package "PQ" -Reason "disk IO test failed"
+        $success = $false
+    }
+
+    try {
+        $seconds = Measure-UrlSeconds -Uri $script:chocoRepo
+        if ($seconds -gt $script:networkThresholdSeconds) {
+            Add-FailedInstallation -Package "PQ" -Reason "network response too slow ${seconds}s"
+            $success = $false
+        }
+    } catch {
+        Add-FailedInstallation -Package "PQ" -Reason "network measurement failed"
+        $success = $false
+    }
+
+    try {
+        $availableMemory = (Get-Counter '\Memory\Available MBytes').CounterSamples[0].CookedValue
+        if ($availableMemory -lt $script:minAvailableMemoryMB) {
+            Add-FailedInstallation -Package "PQ" -Reason "available memory below threshold ${availableMemory}MB"
+            $success = $false
+        }
+    } catch {
+        Add-FailedInstallation -Package "PQ" -Reason "resource utilization measurement failed"
+        $success = $false
+    }
+
+    return $success
+}
+
 function Show-SetupSummary {
     Write-Output "`nInstallation Summary"
     Write-Output "===================="
@@ -397,7 +733,7 @@ function Show-SetupSummary {
 $transcriptStarted = $false
 
 try {
-    if (-not $ValidateOnly) {
+    if (-not $script:QualificationOnlyMode) {
         $username = Get-Content env:username
         $computer = Get-Content env:computername
         $logFile = "C:\$computer-$username-$(Get-Date -Format 'MM-dd-yyyy-HH-mm')-install.log"
@@ -407,46 +743,75 @@ try {
         New-ItemProperty -Path "HKLM:\SYSTEM\CurrentControlSet\Control\FileSystem" -Name "LongPathsEnabled" -Value 1 -PropertyType DWORD -Force | Out-Null
     }
 
-    Invoke-Stage -StageName "preflight-validation" -Action {
-        if (-not (Test-SetupPrerequisites)) {
-            throw "Preflight validation failed"
-        }
-    } | Out-Null
+    $preflightPassed = Invoke-Stage -StageName "preflight-validation" -Action {
+        Test-SetupPrerequisites
+    }
 
-    if ($ValidateOnly) {
-        if (-not (Show-SetupSummary)) {
-            exit 1
-        }
+    if (-not $script:QualificationOnlyMode -and -not $preflightPassed) {
+        Show-SetupSummary | Out-Null
+        exit 1
+    }
+
+    if ($IQOnly) {
+        Invoke-Stage -StageName "IQ" -Action { Invoke-IQStage } | Out-Null
+        if (-not (Show-SetupSummary)) { exit 1 }
         exit 0
     }
 
-    Invoke-Stage -StageName "bootstrap" -Action {
-        if (-not (Install-Chocolatey)) { throw "Chocolatey bootstrap failed" }
-        if (-not (Initialize-Workspace)) { throw "Workspace setup failed" }
-    } | Out-Null
+    if ($OQOnly) {
+        Invoke-Stage -StageName "OQ" -Action { Invoke-OQStage } | Out-Null
+        if (-not (Show-SetupSummary)) { exit 1 }
+        exit 0
+    }
 
-    Invoke-Stage -StageName "feature-installation" -Action {
-        if (-not (Install-WindowsFeatures)) { throw "One or more Windows features failed" }
+    if ($PQOnly) {
+        Invoke-Stage -StageName "PQ" -Action { Invoke-PQStage } | Out-Null
+        if (-not (Show-SetupSummary)) { exit 1 }
+        exit 0
+    }
+
+    if ($ValidateOnly) {
+        Invoke-Stage -StageName "IQ" -Action { Invoke-IQStage } | Out-Null
+        Invoke-Stage -StageName "OQ" -Action { Invoke-OQStage } | Out-Null
+        Invoke-Stage -StageName "PQ" -Action { Invoke-PQStage } | Out-Null
+        Invoke-Stage -StageName "post-checks" -Action { $true } | Out-Null
+        if (-not (Show-SetupSummary)) { exit 1 }
+        exit 0
+    }
+
+    Invoke-Stage -StageName "IQ" -Action { Invoke-IQStage } | Out-Null
+
+    Invoke-Stage -StageName "bootstrap" -Action {
+        if (-not (Install-Chocolatey)) { return $false }
+        if (-not (Initialize-Workspace)) { return $false }
+        return $true
     } | Out-Null
 
     Invoke-Stage -StageName "package-installation" -Action {
-        if (-not (Install-ChocolateyConfigPackages)) { throw "Chocolatey config package installation failed" }
+        Set-EditionPackages
+        $allSucceeded = $true
+        if (-not (Install-WindowsFeatures)) { $allSucceeded = $false }
+        if (-not (Install-ChocolateyConfigPackages)) { $allSucceeded = $false }
+        if (-not (Install-EditionPackages)) { $allSucceeded = $false }
+        return $allSucceeded
     } | Out-Null
 
-    Invoke-Stage -StageName "edition-packages" -Action {
-        Set-EditionPackages
-        if (-not (Install-EditionPackages)) { throw "Edition-specific package installation failed" }
-    } | Out-Null
+    Invoke-Stage -StageName "OQ" -Action { Invoke-OQStage } | Out-Null
 
     Invoke-Stage -StageName "language-dependencies" -Action {
-        if (-not (Install-PIP)) { throw "Python dependency installation failed" }
-        if (-not (Install-Gemfile)) { throw "Ruby dependency installation failed" }
+        $allSucceeded = $true
+        if (-not (Install-PIP)) { $allSucceeded = $false }
+        if (-not (Install-Gemfile)) { $allSucceeded = $false }
+        return $allSucceeded
     } | Out-Null
+
+    Invoke-Stage -StageName "PQ" -Action { Invoke-PQStage } | Out-Null
 
     Invoke-Stage -StageName "post-checks" -Action {
         if ($script:windowsUpdate -and -not (Install-Windows-Update)) {
-            throw "Windows update stage failed"
+            return $false
         }
+        return $true
     } | Out-Null
 
     if (-not (Show-SetupSummary)) {

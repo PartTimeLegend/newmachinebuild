@@ -11,6 +11,27 @@ This repository contains scripts to automate the setup of a new development mach
 - For macOS: [Homebrew](https://brew.sh/)
 - For Windows: [Chocolatey](https://chocolatey.org)
 
+## Lifecycle architecture
+
+Both setup scripts now follow the same regulated-friendly lifecycle:
+
+```mermaid
+flowchart LR
+  A[preflight-validation] --> B[IQ]
+  B --> C[bootstrap]
+  C --> D[package-installation]
+  D --> E[OQ]
+  E --> F[language-dependencies]
+  F --> G[PQ]
+  G --> H[post-checks]
+```
+
+The qualification stages are intended to be non-mutating when run through validation flags:
+
+- **IQ** validates prerequisites, package manager presence, PATH visibility, and checksum accessibility.
+- **OQ** validates operational behavior, dependency-manager health, conflict detection, and rollback safety checks.
+- **PQ** validates response-time, disk I/O, network responsiveness, and baseline resource thresholds.
+
 ## Usage
 
 ### macOS
@@ -19,18 +40,14 @@ This repository contains scripts to automate the setup of a new development mach
 ./NewMachineSetup.sh
 ```
 
-Validation-only smoke mode:
+Qualification-only troubleshooting flags:
 
 ```bash
+./NewMachineSetup.sh --iq-only
+./NewMachineSetup.sh --oq-only
+./NewMachineSetup.sh --pq-only
 ./NewMachineSetup.sh --validate-only
 ```
-
-This will:
-
-1. Install Homebrew if not already installed
-2. Install all packages and applications from `Brewfile`
-3. Install Python packages from `requirements.txt`
-4. Install Ruby gems from `Gemfile`
 
 ### Windows
 
@@ -38,9 +55,12 @@ This will:
 .\NewMachineSetup.ps1
 ```
 
-Validation-only smoke mode:
+Qualification-only troubleshooting flags:
 
 ```powershell
+.\NewMachineSetup.ps1 -IQOnly -SkipElevation
+.\NewMachineSetup.ps1 -OQOnly -SkipElevation
+.\NewMachineSetup.ps1 -PQOnly -SkipElevation
 .\NewMachineSetup.ps1 -ValidateOnly -SkipElevation
 ```
 
@@ -50,14 +70,19 @@ Optional Windows Update stage:
 .\NewMachineSetup.ps1 -WindowsUpdate
 ```
 
-This will:
+## Qualification thresholds
 
-1. Install Chocolatey if not already installed
-2. Create a workspace directory
-3. Install Windows features listed in `features.txt`
-4. Install applications listed in `chocolatey.config`
-5. Install Python packages from `requirements.txt`
-6. Install Ruby gems from `Gemfile`
+Default PQ thresholds can be tuned with environment variables:
+
+- `NMB_MIN_RAM_MB` (default `4096`)
+- `NMB_MIN_DISK_MB` (default `10240`)
+- `NMB_MIN_AVAILABLE_MEMORY_MB` (PowerShell PQ default `512`)
+- `NMB_PACKAGE_MANAGER_THRESHOLD_SECONDS` (default `5`)
+- `NMB_NETWORK_THRESHOLD_SECONDS` (default `5`)
+- `NMB_DISK_WRITE_MBPS_MIN` (default `5`)
+- `NMB_LOAD_THRESHOLD_MULTIPLIER` (Bash PQ default `2`)
+
+Increase these thresholds for slower CI runners, or tighten them for production-like qualification hosts.
 
 ## Customization
 
@@ -71,14 +96,6 @@ To customize the installations:
 
 ## Script architecture and extension model
 
-Both setup scripts now follow the same staged lifecycle:
-
-1. `preflight-validation`
-2. `bootstrap`
-3. `package-installation`
-4. `language-dependencies`
-5. `post-checks`
-
 Design goals in this repository:
 
 - **SOLID**: each stage is orchestrated independently and low-level install logic is isolated behind dedicated functions.
@@ -90,7 +107,14 @@ When adding a new installer:
 1. Add a dedicated install function (single responsibility).
 2. Reuse the shared retry/failure/state helpers.
 3. Hook the function into the appropriate stage.
-4. Keep preflight checks in the validation stage when new input/config files are required.
+4. Keep qualification and preflight checks in validation stages when new inputs or dependencies are required.
+
+## Regulated environment best practices
+
+- Run `--iq-only` or `-IQOnly` before mutating a host.
+- Use `--oq-only` or `-OQOnly` after package changes to confirm dependency managers still behave correctly.
+- Reserve `--validate-only` for CI/CD or formal qualification evidence when a full non-mutating pass is required.
+- Treat PQ thresholds as release criteria and document any local overrides used during validation.
 
 ## Brewfile
 
