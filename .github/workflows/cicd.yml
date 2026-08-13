@@ -72,6 +72,17 @@ jobs:
     - name: Install Homebrew (Linux)
       if: runner.os == 'Linux'
       uses: ./.github/actions/setup-homebrew-linux
+    - name: Ensure Bundler (Linux)
+      if: runner.os == 'Linux'
+      run: |
+        if ! command -v bundle >/dev/null 2>&1; then
+          if ! command -v gem >/dev/null 2>&1; then
+            sudo apt-get update
+            sudo apt-get install -y ruby-full
+          fi
+          sudo gem install bundler --no-document
+        fi
+        bundle --version
     - name: IQ gate
       run: |
         chmod +x ./NewMachineSetup.sh
@@ -108,6 +119,17 @@ jobs:
     - name: Install Homebrew (Linux)
       if: runner.os == 'Linux'
       uses: ./.github/actions/setup-homebrew-linux
+    - name: Ensure Bundler (Linux)
+      if: runner.os == 'Linux'
+      run: |
+        if ! command -v bundle >/dev/null 2>&1; then
+          if ! command -v gem >/dev/null 2>&1; then
+            sudo apt-get update
+            sudo apt-get install -y ruby-full
+          fi
+          sudo gem install bundler --no-document
+        fi
+        bundle --version
     - name: Combined validation benchmark
       run: |
         chmod +x ./NewMachineSetup.sh
