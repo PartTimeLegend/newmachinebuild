@@ -95,6 +95,10 @@ jobs:
       run: |
         chmod +x ./NewMachineSetup.sh
         ./NewMachineSetup.sh --pq-only
+    - name: Full install verification
+      run: |
+        chmod +x ./NewMachineSetup.sh
+        ./NewMachineSetup.sh
 
   powershell-qualification:
     name: PowerShell IQ/OQ/PQ gating
@@ -111,6 +115,9 @@ jobs:
     - name: PQ smoke test
       shell: pwsh
       run: ./NewMachineSetup.ps1 -PQOnly -SkipElevation
+    - name: Full install verification
+      shell: pwsh
+      run: ./NewMachineSetup.ps1 -SkipElevation
 
   bash-validate-only:
     name: Bash validate-only benchmark (${{ matrix.os }})
