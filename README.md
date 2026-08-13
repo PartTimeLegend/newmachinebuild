@@ -19,6 +19,12 @@ This repository contains scripts to automate the setup of a new development mach
 ./NewMachineSetup.sh
 ```
 
+Validation-only smoke mode:
+
+```bash
+./NewMachineSetup.sh --validate-only
+```
+
 This will:
 
 1. Install Homebrew if not already installed
@@ -30,6 +36,18 @@ This will:
 
 ```powershell
 .\NewMachineSetup.ps1
+```
+
+Validation-only smoke mode:
+
+```powershell
+.\NewMachineSetup.ps1 -ValidateOnly -SkipElevation
+```
+
+Optional Windows Update stage:
+
+```powershell
+.\NewMachineSetup.ps1 -WindowsUpdate
 ```
 
 This will:
@@ -50,6 +68,29 @@ To customize the installations:
 - Edit `features.txt` for Windows features
 - Edit `requirements.txt` for Python packages
 - Edit `Gemfile` for Ruby gems
+
+## Script architecture and extension model
+
+Both setup scripts now follow the same staged lifecycle:
+
+1. `preflight-validation`
+2. `bootstrap`
+3. `package-installation`
+4. `language-dependencies`
+5. `post-checks`
+
+Design goals in this repository:
+
+- **SOLID**: each stage is orchestrated independently and low-level install logic is isolated behind dedicated functions.
+- **DRY**: shared behavior (retry, failure tracking, operation-state tracking, summary output) is centralized in reusable helpers.
+- **ACID-like consistency**: prerequisite validation runs first, install operations track explicit state transitions (`planned`, `running`, `succeeded`, `failed`), and retries are applied in a controlled way.
+
+When adding a new installer:
+
+1. Add a dedicated install function (single responsibility).
+2. Reuse the shared retry/failure/state helpers.
+3. Hook the function into the appropriate stage.
+4. Keep preflight checks in the validation stage when new input/config files are required.
 
 ## Brewfile
 
