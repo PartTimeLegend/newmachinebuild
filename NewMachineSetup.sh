@@ -406,9 +406,6 @@ update_homebrew() {
 install_brewfile() {
   echo "Installing packages and applications from Brewfile..."
   local brew_bundle_args=(--verbose)
-  if [ "$(uname -s)" = "Linux" ]; then
-    brew_bundle_args+=(--no-cask)
-  fi
   if ! invoke_with_retry "Install Brewfile dependencies" brew bundle "${brew_bundle_args[@]}"; then
     record_failure "Brewfile" "bundle_install_failed"
     return 1
