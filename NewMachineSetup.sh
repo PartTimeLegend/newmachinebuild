@@ -406,6 +406,18 @@ update_homebrew() {
 install_brewfile() {
   echo "Installing packages and applications from Brewfile..."
   local brew_bundle_args=(--verbose)
+
+  if [ -f "Brewfile" ] && command_exists brew; then
+    while IFS= read -r line; do
+      local tap_name
+      tap_name=$(echo "$line" | sed -n 's/^tap[[:space:]]*"\([^"]*\)".*/\1/p')
+      if [ -n "$tap_name" ]; then
+        brew tap "$tap_name" 2>/dev/null || true
+        brew trust "$tap_name" 2>/dev/null || true
+      fi
+    done < Brewfile
+  fi
+
   if ! invoke_with_retry "Install Brewfile dependencies" brew bundle "${brew_bundle_args[@]}"; then
     record_failure "Brewfile" "bundle_install_failed"
     return 1
