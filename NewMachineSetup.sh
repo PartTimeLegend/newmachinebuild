@@ -450,11 +450,11 @@ run_oq_stage() {
       success=false
     }
     if [ -f "requirements.txt" ]; then
-      pip_resolution_args=(install --dry-run --ignore-installed -r requirements.txt)
+      pip_resolution_args=(install --dry-run --ignore-installed)
       if "$pip_cmd" install --help 2>/dev/null | grep -q -- '--break-system-packages'; then
-        pip_resolution_args=(install --dry-run --ignore-installed --break-system-packages -r requirements.txt)
+        pip_resolution_args+=(--break-system-packages)
       fi
-      "$pip_cmd" "${pip_resolution_args[@]}" >/dev/null 2>&1 || {
+      "$pip_cmd" "${pip_resolution_args[@]}" -r requirements.txt >/dev/null 2>&1 || {
         record_failure "OQ" "pip_dependency_resolution_failed"
         success=false
       }
