@@ -1,3 +1,5 @@
+tap "terraform-linters/tap"
+
 # Command line utilities
 brew "act"
 brew "awscli"
@@ -108,7 +110,7 @@ brew "snappy"
 brew "speedtest-cli"
 brew "sqlite"
 brew "tfenv"
-brew "tflint"
+brew "terraform-linters/tap/tflint"
 brew "tmux"
 brew "tree"
 brew "utf8proc"
