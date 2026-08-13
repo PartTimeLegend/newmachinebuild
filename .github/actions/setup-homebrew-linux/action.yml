@@ -12,5 +12,5 @@ runs:
         echo "HOMEBREW_PREFIX=$HOMEBREW_PREFIX" >> "$GITHUB_ENV"
         echo "HOMEBREW_CELLAR=$HOMEBREW_CELLAR" >> "$GITHUB_ENV"
         echo "HOMEBREW_REPOSITORY=$HOMEBREW_REPOSITORY" >> "$GITHUB_ENV"
-        echo "MANPATH=$MANPATH" >> "$GITHUB_ENV"
-        echo "INFOPATH=$INFOPATH" >> "$GITHUB_ENV"
+        [ -n "$MANPATH" ] && echo "MANPATH=$MANPATH" >> "$GITHUB_ENV" || true
+        [ -n "$INFOPATH" ] && echo "INFOPATH=$INFOPATH" >> "$GITHUB_ENV" || true

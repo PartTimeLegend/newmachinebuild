@@ -305,7 +305,7 @@ run_iq_stage() {
     echo "Homebrew is not installed yet; bootstrap will install it."
   fi
 
-  core_tools="git python pip bundle"
+  core_tools="git python pip"
   for tool_name in $core_tools; do
     case "$tool_name" in
       python)
@@ -313,9 +313,6 @@ run_iq_stage() {
         ;;
       pip)
         command_name="$pip_cmd"
-        ;;
-      bundle)
-        command_name="$bundle_cmd"
         ;;
       *)
         command_name="$tool_name"
@@ -334,6 +331,15 @@ run_iq_stage() {
       echo "$tool_name is not installed yet; later stages may provision it."
     fi
   done
+
+  if [ -n "$bundle_cmd" ] && command_exists "$bundle_cmd"; then
+    verify_checksum "$bundle_cmd" || {
+      record_failure "IQ" "bundle_checksum_failed"
+      success=false
+    }
+  else
+    echo "bundle is not installed yet; Ruby gem stage will provision it."
+  fi
 
   [ "$success" = true ]
 }
