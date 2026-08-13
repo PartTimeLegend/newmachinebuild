@@ -60,11 +60,18 @@ jobs:
         }
 
   bash-qualification:
-    name: Bash IQ/OQ gating
-    runs-on: macos-latest
+    name: Bash IQ/OQ gating (${{ matrix.os }})
+    runs-on: ${{ matrix.os }}
     needs: [shell-lint]
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [macos-latest, ubuntu-latest]
     steps:
     - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # pinned checkout SHA
+    - name: Install Homebrew (Linux)
+      if: runner.os == 'Linux'
+      uses: ./.github/actions/setup-homebrew-linux
     - name: IQ gate
       run: |
         chmod +x ./NewMachineSetup.sh
@@ -88,12 +95,19 @@ jobs:
       run: ./NewMachineSetup.ps1 -OQOnly -SkipElevation
 
   bash-validate-only:
-    name: Bash validate-only benchmark
+    name: Bash validate-only benchmark (${{ matrix.os }})
     if: github.event_name == 'workflow_dispatch' || github.event_name == 'schedule'
-    runs-on: macos-latest
+    runs-on: ${{ matrix.os }}
     needs: [bash-qualification]
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [macos-latest, ubuntu-latest]
     steps:
     - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # pinned checkout SHA
+    - name: Install Homebrew (Linux)
+      if: runner.os == 'Linux'
+      uses: ./.github/actions/setup-homebrew-linux
     - name: Combined validation benchmark
       run: |
         chmod +x ./NewMachineSetup.sh

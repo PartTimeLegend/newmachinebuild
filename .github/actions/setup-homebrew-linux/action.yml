@@ -1,0 +1,11 @@
+name: Setup Homebrew (Linux)
+description: Installs and configures Homebrew on Linux runners
+runs:
+  using: composite
+  steps:
+    - name: Install Homebrew
+      shell: bash
+      run: |
+        /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
+        echo "/home/linuxbrew/.linuxbrew/bin" >> "$GITHUB_PATH"
+        eval "$(/home/linuxbrew/.linuxbrew/bin/brew shellenv)"
