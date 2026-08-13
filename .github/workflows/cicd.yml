@@ -60,7 +60,7 @@ jobs:
         }
 
   bash-qualification:
-    name: Bash IQ/OQ gating (${{ matrix.os }})
+    name: Bash IQ/OQ/PQ gating (${{ matrix.os }})
     runs-on: ${{ matrix.os }}
     needs: [shell-lint]
     strategy:
@@ -91,9 +91,13 @@ jobs:
       run: |
         chmod +x ./NewMachineSetup.sh
         ./NewMachineSetup.sh --oq-only
+    - name: PQ smoke test
+      run: |
+        chmod +x ./NewMachineSetup.sh
+        ./NewMachineSetup.sh --pq-only
 
   powershell-qualification:
-    name: PowerShell IQ/OQ gating
+    name: PowerShell IQ/OQ/PQ gating
     runs-on: windows-latest
     needs: [powershell-static]
     steps:
@@ -104,6 +108,9 @@ jobs:
     - name: OQ smoke test
       shell: pwsh
       run: ./NewMachineSetup.ps1 -OQOnly -SkipElevation
+    - name: PQ smoke test
+      shell: pwsh
+      run: ./NewMachineSetup.ps1 -PQOnly -SkipElevation
 
   bash-validate-only:
     name: Bash validate-only benchmark (${{ matrix.os }})
