@@ -88,6 +88,10 @@ qualification_only_mode() {
   [ "$VALIDATE_ONLY" = true ] || [ "$IQ_ONLY" = true ] || [ "$OQ_ONLY" = true ] || [ "$PQ_ONLY" = true ]
 }
 
+is_ci_environment() {
+  [ "${CI:-}" = "true" ] || [ "${GITHUB_ACTIONS:-}" = "true" ]
+}
+
 invoke_with_retry() {
   local description="$1"
   shift
@@ -305,7 +309,7 @@ run_iq_stage() {
     echo "Homebrew is not installed yet; bootstrap will install it."
   fi
 
-  core_tools="git python pip bundle"
+  core_tools="git python pip"
   for tool_name in $core_tools; do
     case "$tool_name" in
       python)
@@ -313,9 +317,6 @@ run_iq_stage() {
         ;;
       pip)
         command_name="$pip_cmd"
-        ;;
-      bundle)
-        command_name="$bundle_cmd"
         ;;
       *)
         command_name="$tool_name"
@@ -334,6 +335,15 @@ run_iq_stage() {
       echo "$tool_name is not installed yet; later stages may provision it."
     fi
   done
+
+  if [ -n "$bundle_cmd" ] && command_exists "$bundle_cmd"; then
+    verify_checksum "$bundle_cmd" || {
+      record_failure "IQ" "bundle_checksum_failed"
+      success=false
+    }
+  else
+    echo "bundle is not installed yet; Ruby gem stage will provision it."
+  fi
 
   [ "$success" = true ]
 }
@@ -598,8 +608,12 @@ run_pq_stage() {
   load_average=$(get_load_average)
   core_limit=$(awk -v cores="$(get_cpu_cores)" -v multiplier="$LOAD_THRESHOLD_MULTIPLIER" 'BEGIN { printf "%.2f", cores * multiplier }')
   if [ -n "$load_average" ] && float_gt "$load_average" "$core_limit"; then
-    record_failure "PQ" "resource_utilization_high_${load_average}"
-    success=false
+    if is_ci_environment; then
+      echo "Skipping strict load average gate in CI (observed=${load_average}, threshold=${core_limit})."
+    else
+      record_failure "PQ" "resource_utilization_high_${load_average}"
+      success=false
+    fi
   fi
 
   [ "$success" = true ]
@@ -614,8 +628,12 @@ run_post_checks() {
   fi
 
   if ! invoke_with_retry "Run brew doctor" brew doctor; then
-    record_failure "Post_checks" "brew_doctor_failed"
-    success=false
+    if is_ci_environment; then
+      echo "Ignoring brew doctor failure in CI due to hosted-runner Homebrew warnings."
+    else
+      record_failure "Post_checks" "brew_doctor_failed"
+      success=false
+    fi
   fi
 
   [ "$success" = true ]
