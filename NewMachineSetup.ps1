@@ -54,7 +54,11 @@ $script:packageManagerThresholdSeconds = Get-EnvDoubleValue -Name "NMB_PACKAGE_M
 $script:diskWriteMbpsMin = Get-EnvDoubleValue -Name "NMB_DISK_WRITE_MBPS_MIN" -DefaultValue $script:diskWriteMbpsMin
 
 if (-not $script:QualificationOnlyMode) {
-    Clear-Host
+    try {
+        Clear-Host
+    } catch {
+        Write-Verbose "Skipping Clear-Host because the current host UI does not support it."
+    }
 }
 
 if (-not $script:QualificationOnlyMode -and -not $SkipElevation) {
