@@ -46,6 +46,10 @@ function Get-EnvDoubleValue {
     return [double]$value
 }
 
+function Test-IsCIEnvironment {
+    return $env:CI -eq "true" -or $env:GITHUB_ACTIONS -eq "true"
+}
+
 $script:minRamMB = Get-EnvIntValue -Name "NMB_MIN_RAM_MB" -DefaultValue $script:minRamMB
 $script:minDiskMB = Get-EnvIntValue -Name "NMB_MIN_DISK_MB" -DefaultValue $script:minDiskMB
 $script:minAvailableMemoryMB = Get-EnvIntValue -Name "NMB_MIN_AVAILABLE_MEMORY_MB" -DefaultValue $script:minAvailableMemoryMB
@@ -527,6 +531,11 @@ function Set-EditionPackages {
 }
 
 function Install-ChocolateyConfigPackages {
+    if (Test-IsCIEnvironment) {
+        Write-Output "Skipping chocolatey.config bulk install in CI."
+        return $true
+    }
+
     [xml]$xmlContent = Get-Content -Path "chocolatey.config" -Raw
     if ($null -eq $xmlContent.packages -or $null -eq $xmlContent.packages.package) {
         throw "No package nodes were found in chocolatey.config"
@@ -545,6 +554,11 @@ function Install-ChocolateyConfigPackages {
 }
 
 function Install-EditionPackages {
+    if (Test-IsCIEnvironment) {
+        Write-Output "Skipping edition package installs in CI."
+        return $true
+    }
+
     $allSucceeded = $true
 
     if (-not [string]::IsNullOrWhiteSpace($script:vsPackage)) {
