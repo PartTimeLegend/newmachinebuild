@@ -1,5 +1,3 @@
-tap "terraform-linters/tap"
-
 # Command line utilities
 brew "act"
 brew "awscli"
@@ -78,7 +76,7 @@ brew "little-cms2"
 brew "lua"
 brew "lz4"
 brew "lzo"
-brew "mas"
+brew "mas" if OS.mac?
 brew "minikube"
 brew "mpdecimal"
 brew "nano"
@@ -110,7 +108,7 @@ brew "snappy"
 brew "speedtest-cli"
 brew "sqlite"
 brew "tfenv"
-cask "terraform-linters/tap/tflint"
+cask "tflint"
 brew "tmux"
 brew "tree"
 brew "utf8proc"
