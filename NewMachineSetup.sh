@@ -406,6 +406,7 @@ update_homebrew() {
 install_brewfile() {
   echo "Installing packages and applications from Brewfile..."
   local brew_bundle_args=(--verbose)
+  local -a brew_bundle_cmd=(brew bundle "${brew_bundle_args[@]}")
 
   if [ -f "Brewfile" ] && command_exists brew; then
     while IFS= read -r line; do
@@ -418,7 +419,18 @@ install_brewfile() {
     done < Brewfile
   fi
 
-  if ! invoke_with_retry "Install Brewfile dependencies" brew bundle "${brew_bundle_args[@]}"; then
+  if is_ci_environment && [ "$(uname -s)" = "Darwin" ]; then
+    echo "Skipping Homebrew casks and Mac App Store apps in CI."
+    if ! invoke_with_retry \
+      "Install Brewfile dependencies" \
+      env HOMEBREW_BUNDLE_NO_INSTALL_CASK=1 HOMEBREW_BUNDLE_NO_INSTALL_MAS=1 "${brew_bundle_cmd[@]}"; then
+      record_failure "Brewfile" "bundle_install_failed"
+      return 1
+    fi
+    return 0
+  fi
+
+  if ! invoke_with_retry "Install Brewfile dependencies" "${brew_bundle_cmd[@]}"; then
     record_failure "Brewfile" "bundle_install_failed"
     return 1
   fi
