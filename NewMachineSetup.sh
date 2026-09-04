@@ -403,6 +403,49 @@ update_homebrew() {
   return 0
 }
 
+cleanup_unmanaged_homebrew_taps() {
+  if ! command_exists brew; then
+    return 0
+  fi
+
+  if [ ! -f "Brewfile" ]; then
+    return 0
+  fi
+
+  local tap required_tap
+  local -a required_taps installed_taps
+
+  while IFS= read -r tap; do
+    if [ -n "$tap" ]; then
+      required_taps+=("$tap")
+    fi
+  done < <(sed -n 's/^tap[[:space:]]*"\([^"]*\)".*/\1/p' Brewfile)
+
+  while IFS= read -r tap; do
+    if [ -n "$tap" ]; then
+      installed_taps+=("$tap")
+    fi
+  done < <(brew tap 2>/dev/null)
+
+  for tap in "${installed_taps[@]}"; do
+    local keep_tap=false
+    for required_tap in "${required_taps[@]}"; do
+      if [ "$tap" = "$required_tap" ]; then
+        keep_tap=true
+        break
+      fi
+    done
+
+    if [ "$keep_tap" = true ]; then
+      continue
+    fi
+
+    brew untap "$tap" >/dev/null 2>&1 || true
+  done
+
+  return 0
+}
+
 install_brewfile() {
   echo "Installing packages and applications from Brewfile..."
   local brew_bundle_args=(--verbose)
@@ -666,6 +709,8 @@ run_post_checks() {
     record_failure "Post_checks" "brew_not_available"
     return 1
   fi
+
+  cleanup_unmanaged_homebrew_taps
 
   if ! invoke_with_retry "Run brew doctor" brew doctor; then
     if is_ci_environment; then
