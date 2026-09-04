@@ -414,7 +414,6 @@ install_brewfile() {
       tap_name=$(echo "$line" | sed -n 's/^tap[[:space:]]*"\([^"]*\)".*/\1/p')
       if [ -n "$tap_name" ]; then
         brew tap "$tap_name" 2>/dev/null || true
-        brew trust "$tap_name" 2>/dev/null || true
       fi
     done < Brewfile
   fi
