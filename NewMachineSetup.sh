@@ -408,8 +408,14 @@ cleanup_unmanaged_homebrew_taps() {
     return 0
   fi
 
-  if [ ! -f "Brewfile" ]; then
-    return 0
+  local brewfile_path="Brewfile"
+  if [ ! -f "$brewfile_path" ]; then
+    local script_dir
+    script_dir=$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)
+    brewfile_path="$script_dir/Brewfile"
+    if [ ! -f "$brewfile_path" ]; then
+      return 0
+    fi
   fi
 
   local tap required_tap
@@ -420,7 +426,7 @@ cleanup_unmanaged_homebrew_taps() {
     if [ -n "$tap" ]; then
       required_taps+=("$tap")
     fi
-  done < <(sed -n 's/^tap[[:space:]]*"\([^"]*\)".*/\1/p' Brewfile)
+  done < <(sed -n 's/^tap[[:space:]]*"\([^"]*\)".*/\1/p' "$brewfile_path")
 
   while IFS= read -r tap; do
     if [ -n "$tap" ]; then
@@ -441,7 +447,11 @@ cleanup_unmanaged_homebrew_taps() {
       continue
     fi
 
-    if ! brew untap "$tap" >/dev/null 2>&1; then
+    if [ ${#required_taps[@]} -eq 0 ] && [[ "$tap" != homebrew/* ]]; then
+      continue
+    fi
+
+    if ! brew untap "$tap"; then
       echo "Warning: Unable to untap $tap; it may still be required by installed formulae." >&2
     fi
   done
