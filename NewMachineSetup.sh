@@ -403,6 +403,62 @@ update_homebrew() {
   return 0
 }
 
+cleanup_unmanaged_homebrew_taps() {
+  if ! command_exists brew; then
+    return 0
+  fi
+
+  local brewfile_path="Brewfile"
+  if [ ! -f "$brewfile_path" ]; then
+    local script_dir
+    script_dir=$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)
+    brewfile_path="$script_dir/Brewfile"
+    if [ ! -f "$brewfile_path" ]; then
+      return 0
+    fi
+  fi
+
+  local tap required_tap
+  local keep_tap
+  local -a required_taps installed_taps
+
+  while IFS= read -r tap; do
+    if [ -n "$tap" ]; then
+      required_taps+=("$tap")
+    fi
+  done < <(sed -n 's/^tap[[:space:]]*"\([^"]*\)".*/\1/p' "$brewfile_path")
+
+  while IFS= read -r tap; do
+    if [ -n "$tap" ]; then
+      installed_taps+=("$tap")
+    fi
+  done < <(brew tap 2>/dev/null)
+
+  for tap in "${installed_taps[@]}"; do
+    keep_tap=false
+    for required_tap in "${required_taps[@]}"; do
+      if [ "$tap" = "$required_tap" ]; then
+        keep_tap=true
+        break
+      fi
+    done
+
+    if [ "$keep_tap" = true ]; then
+      continue
+    fi
+
+    if [ ${#required_taps[@]} -eq 0 ] && [[ "$tap" != homebrew/* ]]; then
+      continue
+    fi
+
+    if ! brew untap "$tap"; then
+      echo "Warning: Unable to untap $tap; it may still be required by installed formulae." >&2
+    fi
+  done
+
+  return 0
+}
+
 install_brewfile() {
   echo "Installing packages and applications from Brewfile..."
   local brew_bundle_args=(--verbose)
@@ -666,6 +722,8 @@ run_post_checks() {
     record_failure "Post_checks" "brew_not_available"
     return 1
   fi
+
+  cleanup_unmanaged_homebrew_taps
 
   if ! invoke_with_retry "Run brew doctor" brew doctor; then
     if is_ci_environment; then
