@@ -440,7 +440,9 @@ cleanup_unmanaged_homebrew_taps() {
       continue
     fi
 
-    brew untap "$tap" >/dev/null 2>&1 || true
+    if ! brew untap "$tap" >/dev/null 2>&1; then
+      echo "Warning: Unable to untap $tap; it may still be required by installed formulae."
+    fi
   done
 
   return 0
