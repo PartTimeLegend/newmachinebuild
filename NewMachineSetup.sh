@@ -534,7 +534,6 @@ run_oq_stage() {
 
 install_pip() {
   local pip_cmd
-  local use_user_site=false
   local -a pip_install_args
   pip_cmd=$(find_first_command pip3 pip || true)
 
@@ -552,9 +551,8 @@ install_pip() {
   if is_ci_environment && [ "$(uname -s)" = "Darwin" ]; then
     pip_install_args+=(--ignore-installed)
     pip_install_args+=(--user)
-    use_user_site=true
   fi
-  if [ "$use_user_site" = false ] && "$pip_cmd" install --help 2>/dev/null | grep -q -- '--break-system-packages'; then
+  if "$pip_cmd" install --help 2>/dev/null | grep -q -- '--break-system-packages'; then
     pip_install_args+=(--break-system-packages)
   fi
 
