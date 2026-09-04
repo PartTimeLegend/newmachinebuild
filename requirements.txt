@@ -79,7 +79,6 @@ sphinxcontrib-qthelp
 sphinxcontrib-serializinghtml
 structlog
 toml
-typing-extensions
 urllib3
 virtualenv
 wrapt
