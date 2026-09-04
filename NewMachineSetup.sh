@@ -413,6 +413,7 @@ cleanup_unmanaged_homebrew_taps() {
   fi
 
   local tap required_tap
+  local keep_tap
   local -a required_taps installed_taps
 
   while IFS= read -r tap; do
@@ -428,7 +429,7 @@ cleanup_unmanaged_homebrew_taps() {
   done < <(brew tap 2>/dev/null)
 
   for tap in "${installed_taps[@]}"; do
-    local keep_tap=false
+    keep_tap=false
     for required_tap in "${required_taps[@]}"; do
       if [ "$tap" = "$required_tap" ]; then
         keep_tap=true
@@ -441,7 +442,7 @@ cleanup_unmanaged_homebrew_taps() {
     fi
 
     if ! brew untap "$tap" >/dev/null 2>&1; then
-      echo "Warning: Unable to untap $tap; it may still be required by installed formulae."
+      echo "Warning: Unable to untap $tap; it may still be required by installed formulae." >&2
     fi
   done
 
