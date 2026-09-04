@@ -550,6 +550,7 @@ install_pip() {
   pip_install_args=(install)
   if is_ci_environment && [ "$(uname -s)" = "Darwin" ]; then
     pip_install_args+=(--ignore-installed)
+    pip_install_args+=(--user)
   fi
   if "$pip_cmd" install --help 2>/dev/null | grep -q -- '--break-system-packages'; then
     pip_install_args+=(--break-system-packages)
