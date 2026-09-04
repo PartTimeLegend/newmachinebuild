@@ -408,14 +408,30 @@ install_brewfile() {
   local brew_bundle_args=(--verbose)
   local -a brew_bundle_cmd=(brew bundle "${brew_bundle_args[@]}")
 
+  if [ -f "Brewfile" ] && command_exists brew; then
+    while IFS= read -r line; do
+      local tap_name
+      tap_name=$(echo "$line" | sed -n 's/^tap[[:space:]]*"\([^"]*\)".*/\1/p')
+      if [ -n "$tap_name" ]; then
+        brew tap "$tap_name" 2>/dev/null || true
+      fi
+    done < Brewfile
+  fi
+
   if is_ci_environment && [ "$(uname -s)" = "Darwin" ]; then
     echo "Skipping Homebrew casks and Mac App Store apps in CI."
+    local ci_brewfile
+    ci_brewfile=$(mktemp)
+    awk '!/^[[:space:]]*(cask|mas)[[:space:]]/' Brewfile >"$ci_brewfile"
+    local -a ci_brew_bundle_cmd=(brew bundle "${brew_bundle_args[@]}" --file="$ci_brewfile")
     if ! invoke_with_retry \
       "Install Brewfile dependencies" \
-      env HOMEBREW_BUNDLE_NO_INSTALL_CASK=1 HOMEBREW_BUNDLE_NO_INSTALL_MAS=1 "${brew_bundle_cmd[@]}"; then
+      "${ci_brew_bundle_cmd[@]}"; then
+      rm -f "$ci_brewfile"
       record_failure "Brewfile" "bundle_install_failed"
       return 1
     fi
+    rm -f "$ci_brewfile"
     return 0
   fi
 
