@@ -272,8 +272,12 @@ validate_inputs() {
 
   for endpoint in "https://brew.sh" "https://pypi.org/simple/" "https://rubygems.org"; do
     if ! check_url_connectivity "$endpoint"; then
-      record_failure "preflight-validation" "network_unreachable_$(echo "$endpoint" | sed 's#https\?://##; s#[^A-Za-z0-9]#_#g')"
-      valid=false
+      if is_ci_environment && [ "$endpoint" = "https://brew.sh" ]; then
+        echo "Warning: $endpoint unreachable in CI environment; skipping as non-fatal"
+      else
+        record_failure "preflight-validation" "network_unreachable_$(echo "$endpoint" | sed 's#https\?://##; s#[^A-Za-z0-9]#_#g')"
+        valid=false
+      fi
     fi
   done
 
