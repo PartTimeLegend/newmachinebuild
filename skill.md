@@ -48,8 +48,8 @@ The pipeline runs on `push` and `pull_request` to `master`, on a daily schedule,
 ### CI-specific Behaviour
 
 - Cask and MAS lines are filtered from the Brewfile before `brew bundle` on Linux CI.
-- Chocolatey bulk installs and edition packages are skipped when `GITHUB_ACTIONS=true`.
-- `brew doctor` warnings and PQ load spikes are non-fatal when `CI=true`.
+- Chocolatey bulk installs and edition packages are skipped when `CI=true` or `GITHUB_ACTIONS=true`.
+- `brew doctor` warnings and PQ load spikes are non-fatal when `CI=true` or `GITHUB_ACTIONS=true`.
 - `pip install` conditionally adds `--break-system-packages` when pip detects an externally managed environment.
 - `--ignore-installed` is added on macOS CI to avoid conflicts with Homebrew-managed Python packages.
 - `typing-extensions` is excluded from `requirements.txt` to avoid macOS CI pip conflicts.
