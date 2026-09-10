@@ -41,10 +41,10 @@ The pipeline runs on `push` and `pull_request` to `master`, on a daily schedule,
 
 1. **shell-lint** – `shellcheck` on `NewMachineSetup.sh` and `unbrew.sh`.
 2. **powershell-static** – PowerShell AST parse check on `NewMachineSetup.ps1`.
-3. **bash-qualification** – `--validate-only` IQ/OQ/PQ on `macos-latest` and `ubuntu-latest`. Needs `shell-lint`.
-4. **powershell-qualification** – `--validate-only` IQ/OQ/PQ on `windows-latest`. Needs `powershell-static`.
-5. **bash-cicd** / **powershell-cicd** – Full non-dry-run installs. Gate on IQ/OQ/PQ jobs.
-
+3. **bash-qualification** – Runs `--iq-only`, `--oq-only`, `--pq-only`, then a full install verification on `macos-latest` and `ubuntu-latest`. Needs `shell-lint`.
+4. **powershell-qualification** – Runs `-IQOnly`, `-OQOnly`, `-PQOnly`, then a full install verification on `windows-latest`. Needs `powershell-static`.
+5. **bash-validate-only** / **powershell-validate-only** – Combined `--validate-only` / `-ValidateOnly` benchmarks (workflow_dispatch/schedule/pull_request). Need their respective qualification job.
+6. **tag** – Tags a release on `push` to `master` after qualification jobs.
 ### CI-specific Behaviour
 
 - Cask and MAS lines are filtered from the Brewfile before `brew bundle` on Linux CI.
