@@ -438,9 +438,9 @@ cleanup_unmanaged_homebrew_taps() {
     fi
   done < <(brew tap 2>/dev/null)
 
-  for tap in "${installed_taps[@]+"${installed_taps[@]}"}"; do
+  for tap in ${installed_taps[@]+"${installed_taps[@]}"}; do
     keep_tap=false
-    for required_tap in "${required_taps[@]+"${required_taps[@]}"}"; do
+    for required_tap in ${required_taps[@]+"${required_taps[@]}"}; do
       if [ "$tap" = "$required_tap" ]; then
         keep_tap=true
         break
