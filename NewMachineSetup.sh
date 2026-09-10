@@ -447,7 +447,7 @@ cleanup_unmanaged_homebrew_taps() {
       continue
     fi
 
-    if [ ${#required_taps[@]} -eq 0 ] && [[ "$tap" == homebrew/* ]]; then
+    if [[ "$tap" == homebrew/* ]]; then
       continue
     fi
 
