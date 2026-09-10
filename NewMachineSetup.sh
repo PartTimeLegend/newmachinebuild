@@ -420,7 +420,7 @@ cleanup_unmanaged_homebrew_taps() {
 
   local tap required_tap
   local keep_tap
-  local -a required_taps installed_taps
+  local -a required_taps=() installed_taps=()
 
   while IFS= read -r tap; do
     if [ -n "$tap" ]; then
