@@ -41,24 +41,26 @@ The pipeline runs on `push` and `pull_request` to `master`, on a daily schedule,
 
 1. **shell-lint** – `shellcheck` on `NewMachineSetup.sh` and `unbrew.sh`.
 2. **powershell-static** – PowerShell AST parse check on `NewMachineSetup.ps1`.
-3. **bash-qualification** – Runs `--iq-only`, `--oq-only`, `--pq-only`, then a full install verification on `macos-latest` and `ubuntu-latest`. Needs `shell-lint`.
-4. **powershell-qualification** – Runs `-IQOnly`, `-OQOnly`, `-PQOnly`, then a full install verification on `windows-latest`. Needs `powershell-static`.
-5. **bash-validate-only** / **powershell-validate-only** – Combined `--validate-only` / `-ValidateOnly` benchmarks (workflow_dispatch/schedule/pull_request). Need their respective qualification job.
-6. **tag** – Tags a release on `push` to `master` after qualification jobs.
+3. **bash-qualification** – Runs `--iq-only`, `--oq-only`, and `--pq-only` on `macos-latest` and `ubuntu-latest`. Needs `shell-lint`.
+4. **powershell-qualification** – Runs `--iq-only`, `--oq-only`, and `--pq-only` on `windows-latest`. Needs `powershell-static`.
+5. **bash-validate-only** – Full `--validate-only` benchmark on `macos-latest` and `ubuntu-latest`. Gates on `bash-qualification`. Runs on schedule, manual dispatch, and pull_request.
+6. **powershell-validate-only** – Full `--validate-only` benchmark on `windows-latest`. Gates on `powershell-qualification`. Runs on schedule, manual dispatch, and pull_request.
+7. **tag** – Bumps and pushes a version tag. Gates on `shell-lint`, `powershell-static`, `bash-qualification`, and `powershell-qualification`.
+
 ### CI-specific Behaviour
 
 - Cask and MAS lines are filtered from the Brewfile before `brew bundle` on Linux CI.
-- Chocolatey bulk installs and edition packages are skipped when `GITHUB_ACTIONS=true`.
-- `brew doctor` warnings and PQ load spikes are non-fatal when `CI=true`.
+- Chocolatey bulk installs and edition packages are skipped when `CI=true` or `GITHUB_ACTIONS=true`.
+- `brew doctor` warnings and PQ load spikes are non-fatal when `CI=true` or `GITHUB_ACTIONS=true`.
 - `pip install` conditionally adds `--break-system-packages` when pip detects an externally managed environment.
 - `--ignore-installed` is added on macOS CI to avoid conflicts with Homebrew-managed Python packages.
 - `typing-extensions` is excluded from `requirements.txt` to avoid macOS CI pip conflicts.
 
 ## Coding Conventions
 
-- **Bash**: POSIX-compatible where possible; uses `set -euo pipefail`. CI-only guards use `[[ -n "${CI:-}" ]]` or `[[ -n "${GITHUB_ACTIONS:-}" ]]`.
-- **PowerShell**: Uses `$ErrorActionPreference = 'Stop'`. `Clear-Host` is wrapped as best-effort for non-interactive CI hosts.
-- **Commits**: Pinned action SHAs (e.g. `actions/checkout@<sha>`) are required in workflow files.
+- **Bash**: POSIX-compatible where possible; uses `set -euo pipefail`. CI-only guards use `is_ci_environment()` which checks `CI=true` OR `GITHUB_ACTIONS=true`.
+- **PowerShell**: Uses `$ErrorActionPreference = 'Stop'`. `Clear-Host` is wrapped as best-effort for non-interactive CI hosts. `Test-IsCIEnvironment` checks `$env:CI -eq "true"` OR `$env:GITHUB_ACTIONS -eq "true"`.
+- **Commits**: Pin action references to a commit SHA where feasible; do not introduce new unpinned action references.
 - **Dependencies**: Managed via Renovate (`renovate.json`). Do not manually bump versions.
 
 ## Agent Guidance
@@ -69,6 +71,6 @@ When working in this repository:
 2. **Qualification flags** – Use `--validate-only` to smoke-test script changes without making system changes.
 3. **Brewfile changes** – Avoid adding taps or casks that break Linux CI; ensure `brew bundle` works without `--no-cask`.
 4. **requirements.txt** – Do not add `typing-extensions`; it conflicts with Homebrew-managed Python on macOS CI.
-5. **Workflow changes** – Pin all action references to a commit SHA, not a tag.
-6. **CI guards** – Wrap any step that is unsafe in a non-interactive or read-only environment behind `CI`/`GITHUB_ACTIONS` checks.
-7. **Full install jobs** – Only the `bash-cicd` and `powershell-cicd` jobs perform real installs; all other jobs must remain non-mutating.
+5. **Workflow changes** – Pin new action references to a commit SHA, not a tag.
+6. **CI guards** – Wrap any step that is unsafe in a non-interactive or read-only environment behind `is_ci_environment()` / `Test-IsCIEnvironment` checks (both `CI` and `GITHUB_ACTIONS` are checked).
+7. **Full install jobs** – Only the `bash-qualification` and `powershell-qualification` jobs perform real installs; `validate-only` jobs and lint jobs must remain non-mutating.
