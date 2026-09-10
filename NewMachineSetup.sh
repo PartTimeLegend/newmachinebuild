@@ -452,7 +452,7 @@ cleanup_unmanaged_homebrew_taps() {
     fi
 
     if ! brew untap "$tap"; then
-      echo "Warning: Unable to untap $tap; it may still be required by installed formulae." >&2
+      echo "Warning: Unable to untap '$tap'. It is likely still required by an installed formula; remove the dependent formula first." >&2
     fi
   done
 
