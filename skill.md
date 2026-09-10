@@ -58,7 +58,7 @@ The pipeline runs on `push` and `pull_request` to `master`, on a daily schedule,
 
 - **Bash**: POSIX-compatible where possible; uses `set -euo pipefail`. CI-only guards use `[[ -n "${CI:-}" ]]` or `[[ -n "${GITHUB_ACTIONS:-}" ]]`.
 - **PowerShell**: Uses `$ErrorActionPreference = 'Stop'`. `Clear-Host` is wrapped as best-effort for non-interactive CI hosts.
-- **Commits**: Pinned action SHAs (e.g. `actions/checkout@<sha>`) are required in workflow files.
+- **Commits**: Prefer pinned action SHAs (e.g. `actions/checkout@<sha>`) in workflow files; avoid introducing new tag/branch-based action references.
 - **Dependencies**: Managed via Renovate (`renovate.json`). Do not manually bump versions.
 
 ## Agent Guidance
