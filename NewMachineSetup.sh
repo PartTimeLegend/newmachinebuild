@@ -478,7 +478,7 @@ install_brewfile() {
     done < Brewfile
   fi
 
-  if is_ci_environment && [ "$(uname -s)" = "Darwin" ]; then
+  if is_ci_environment; then
     echo "Skipping Homebrew casks and Mac App Store apps in CI."
     local ci_brewfile
     ci_brewfile=$(mktemp)
