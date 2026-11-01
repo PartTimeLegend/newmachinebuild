@@ -1,7 +1,6 @@
 # Command line utilities
 brew "act"
 brew "awscli"
-brew "azure-cli"
 brew "brotli"
 brew "c-ares"
 brew "ca-certificates"
@@ -126,6 +125,7 @@ brew "argocd"
 brew "cmctl"
 
 # Mac Applications (Casks)
+cask "azure-cli"
 cask "caffeine"
 cask "firefox"
 cask "github"
